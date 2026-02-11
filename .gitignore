@@ -4,3 +4,4 @@ __pycache__/
 venv/
 .streamlit/
 .DS_Store
+fine_tuned_sql_model/

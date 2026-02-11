@@ -20,41 +20,58 @@ class AgentState(TypedDict):
 # Initialize the LLM (Gemini 2.0 Flash)
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
 
-# Optional: Load your fine-tuned local model
-# from transformers import T5Tokenizer, T5ForConditionalGeneration
-# local_tokenizer = T5Tokenizer.from_pretrained("./fine_tuned_sql_model")
-# local_model = T5ForConditionalGeneration.from_pretrained("./fine_tuned_sql_model")
+# Load your fine-tuned local model
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+import torch
+
+try:
+    print("🤖 Loading Local ML Model...")
+    model_path = "./fine_tuned_sql_model"
+    local_tokenizer = T5Tokenizer.from_pretrained(model_path)
+    local_model = T5ForConditionalGeneration.from_pretrained(model_path)
+    LOCAL_MODEL_READY = True
+except Exception as e:
+    print(f"⚠️ Local model not found or error loading: {e}")
+    LOCAL_MODEL_READY = False
 
 # --- Node 1: Planner/SQL Generator ---
 def sql_generator_node(state: AgentState):
     print("--- GENERATING SQL ---")
     
     # HYBRID LOGIC: 
-    # If it's the first attempt, try the local model (to save Gemini costs)
-    # If there's an error, use Gemini 2.0 Flash to "fix" it.
+    # Attempt 1: Try Local ML Model (Free)
+    # Attempt 2+: Use Gemini 2.0 Flash (Expert Fixer)
     
-    if state.get('iteration_count', 0) == 0:
-        print("Using Primary Engine (Gemini/Local)...")
-        # Here you would call your local model inference:
-        # input_text = f"translate English to SQL: {state['user_query']}"
-        # ... generate SQL ...
-        # For now, we use Gemini as the primary engine, but you can swap in local model here.
+    if state.get('iteration_count', 0) == 0 and LOCAL_MODEL_READY:
+        print("Using Local T5 Model (Primary Attempt)...")
+        input_text = f"translate English to SQL: {state['user_query']} | Schema: {state['db_schema']}"
+        inputs = local_tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
         
-    prompt = f"""
-    You are an expert PostgreSQL developer. 
-    DATABASE SCHEMA:
-    {state['db_schema']}
-    
-    USER QUESTION:
-    {state['user_query']}
-    
-    PREVIOUS ERROR (if any):
-    {state.get('error_message', 'None')}
-    
-    Generate ONLY the SQL query.
-    """
-    response = llm.invoke(prompt)
-    return {"generated_sql": response.content.strip(), "iteration_count": state.get('iteration_count', 0) + 1}
+        with torch.no_grad():
+            outputs = local_model.generate(**inputs, max_length=512)
+        
+        generated_sql = local_tokenizer.decode(outputs[0], skip_special_tokens=True)
+        print(f"Local Model Output: {generated_sql}")
+        
+    else:
+        print("Using Gemini 2.0 Flash (Expert Correction)...")
+        prompt = f"""
+        You are an expert PostgreSQL developer. 
+        DATABASE SCHEMA:
+        {state['db_schema']}
+        
+        USER QUESTION:
+        {state['user_query']}
+        
+        PREVIOUS ERROR (if any):
+        {state.get('error_message', 'None')}
+        
+        Generate ONLY the SQL query. No markdown formatting.
+        """
+        response = llm.invoke(prompt)
+        generated_sql = response.content.strip()
+
+    return {"generated_sql": generated_sql, "iteration_count": state.get('iteration_count', 0) + 1}
 
 # --- Node 2: Database Executor ---
 def db_executor_node(state: AgentState):
