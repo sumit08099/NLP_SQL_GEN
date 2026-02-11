@@ -1,0 +1,9 @@
+google-generativeai
+psycopg2-binary
+python-dotenv
+streamlit
+pandas
+sqlalchemy
+langchain
+langchain-google-genai
+langgraph
