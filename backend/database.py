@@ -6,7 +6,11 @@ load_dotenv()
 
 def get_db_connection():
     try:
-        conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+        url = os.getenv("DATABASE_URL")
+        # psycopg2 doesn't always support the pgbouncer=true query param in the URI
+        if url and "pgbouncer=true" in url:
+            url = url.replace("?pgbouncer=true", "")
+        conn = psycopg2.connect(url)
         return conn
     except Exception as e:
         print(f"Error connecting to database: {e}")
