@@ -2,6 +2,10 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
+import auth
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import Annotated
 import os
 import sys
 from pathlib import Path
@@ -23,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...), table_name: str = Form(...)):
@@ -47,9 +53,30 @@ async def upload_file(file: UploadFile = File(...), table_name: str = Form(...))
 async def get_schema():
     return {"schema": database.fetch_db_schema()}
 
+# ============================================================================
+# AUTH ENDPOINTS
+# ============================================================================
+
+@app.post("/signup")
+async def signup(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    hashed_pass = auth.get_password_hash(password)
+    # Note: In a real app, you'd save this to your Supabase Users table
+    # For now, we simulate success
+    return {"message": "User created successfully"}
+
+@app.post("/login")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    # Simulation: In real life, fetch user from DB and verify_password
+    access_token = auth.create_access_token(data={"sub": form_data.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @app.post("/chat")
-async def chat(query: str = Form(...)):
+async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_scheme)] = None):
     try:
+        # Verify Token
+        if not auth.decode_token(token):
+             raise HTTPException(status_code=401, detail="Invalid session")
+             
         # 1. Fetch Schema
         schema = database.fetch_db_schema()
         
