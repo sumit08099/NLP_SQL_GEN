@@ -166,7 +166,7 @@ const SignupPage = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="w-full h-16 glass bg-white/[0.03] rounded-2xl pl-14 pr-6 text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all placeholder:text-slate-600 text-lg border-white/5"
-                                    placeholder="Password"
+                                    placeholder="e.g. Pass@word#123"
                                     required
                                 />
                             </div>
@@ -217,9 +217,12 @@ const SignupPage = () => {
                 </div>
 
                 {/* Safety Badge */}
-                <div className="mt-10 flex items-center justify-center gap-3 text-slate-600 opacity-50">
-                    <Shield size={16} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Protocol Active</span>
+                <div className="mt-10 flex flex-col items-center justify-center gap-2 text-slate-600 opacity-60">
+                    <div className="flex items-center gap-2">
+                        <Shield size={14} />
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Protocol Active</span>
+                    </div>
+                    <p className="text-[10px] font-medium text-brand-400/80 italic">Pro-Tip: Use symbols like @, #, $ for maximum security.</p>
                 </div>
             </motion.div>
         </div>
