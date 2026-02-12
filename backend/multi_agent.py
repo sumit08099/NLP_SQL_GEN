@@ -102,8 +102,9 @@ DATABASE SCHEMA:
 INSTRUCTIONS:
 1. Write a step-by-step reasoning plan.
 2. Generate the PostgreSQL query. 
-3. Use proper column names as shown in the schema.
-4. If execution failed previously (check error: {state.get('error_message')}), FIX the SQL.
+3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters like dashes or spaces.
+4. Use proper column names as shown in the schema.
+5. If execution failed previously (check error: {state.get('error_message')}), FIX the SQL.
 
 Format:
 PLAN: [Describe your steps]
