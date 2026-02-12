@@ -7,15 +7,15 @@ Base = declarative_base()
 
 class User(Base):
     """
-    Core user table - represents customers/users in the system.
-    Can be joined with Orders via user_id foreign key.
+    Core user table for authentication and data ownership.
     """
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, comment="Unique user identifier")
-    name = Column(String, nullable=False, comment="Full name of the user")
-    email = Column(String, unique=True, index=True, nullable=False, comment="User's email address (unique)")
-    created_at = Column(DateTime, default=datetime.utcnow, index=True, comment="Account creation timestamp")
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
     # Relationships
     orders = relationship("Order", back_populates="owner", cascade="all, delete-orphan")

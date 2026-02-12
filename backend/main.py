@@ -14,8 +14,9 @@ sys.path.append(str(Path(__file__).parent))
 
 import database
 import agent
-import ai_engine
-from typing import List
+import auth
+from models import User
+from typing import List, Annotated
 
 app = FastAPI(title="NL2SQL API")
 
@@ -59,15 +60,28 @@ async def get_schema():
 
 @app.post("/signup")
 async def signup(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    db = database.get_db_session()
+    # Check if user exists
+    if db.query(User).filter(User.username == username).first():
+        raise HTTPException(status_code=400, detail="Username already registered")
+    
     hashed_pass = auth.get_password_hash(password)
-    # Note: In a real app, you'd save this to your Supabase Users table
-    # For now, we simulate success
+    new_user = User(username=username, email=email, hashed_password=hashed_pass)
+    db.add(new_user)
+    db.commit()
+    db.close()
     return {"message": "User created successfully"}
 
 @app.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    # Simulation: In real life, fetch user from DB and verify_password
-    access_token = auth.create_access_token(data={"sub": form_data.username})
+    db = database.get_db_session()
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
+        db.close()
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    access_token = auth.create_access_token(data={"sub": user.username})
+    db.close()
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/chat")

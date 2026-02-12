@@ -2,9 +2,15 @@ import os
 import psycopg2
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
 load_dotenv()
+
+def get_db_session():
+    engine = get_sqlalchemy_engine()
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    return SessionLocal()
 
 def get_db_connection():
     try:
