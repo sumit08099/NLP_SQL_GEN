@@ -224,14 +224,15 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
         columns = state.get('query_columns', [])
         data_str = str([dict(zip(columns, row)) for row in data_sample])
         
-        prompt = f"""You are a Senior Data Analyst. 
+        prompt = f"""You are a helpful Data Analyst. 
 The user asked: {state['user_query']}
 Data Retrieved: {data_str}
 
 Instruction:
-1. Identify and explain the USER'S DATA (the CSV tables).
-2. Ignore system tables (alembic, dynamic_tables, users, etc.) unless they are specifically mentioned.
-3. Provide a clear, insightful answer."""
+1. Provide a clear, simple, and point-wise answer. Use a bulleted list format.
+2. Cover all relevant information from the data simply.
+3. DO NOT use bold formatting (strict rule: no double asterisks like **text**).
+4. Avoid long paragraphs. Keep the structure clean and minimalist."""
 
         try:
             response = client.models.generate_content(model=MODEL_ID, contents=prompt)
