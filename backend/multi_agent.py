@@ -46,25 +46,21 @@ class MultiAgentState(TypedDict):
 def supervisor_agent(state: MultiAgentState) -> MultiAgentState:
     print("🎯 SUPERVISOR: Analyzing query context...")
     
-    prompt = f"""You are a SQL Query Assistant Supervisor.
-Analyze this request based on the database schema provided.
-
-USER QUERY: {state['user_query']}
-DATABASE SCHEMA:
+    prompt = f"""You are a SQL Assistant Supervisor.
+Analyze this request: "{state['user_query']}"
+SCHEMA:
 {state['db_schema']}
 
-TASKS:
-1. Identify target tables for this query.
-2. Determine if it's a "single", "join", or "aggregation" query.
-3. Identify if the query is ambiguous.
+IMPORTANT:
+- Prioritize user-uploaded CSV tables over system tables ('alembic_version', 'dynamic_tables', 'users', 'products', 'orders').
+- If the user asks about "data" or "tables", they almost certainly mean their CSV files.
 
-Return your response as a JSON object ONLY, with no markdown formatting.
-JSON structure:
+Return JSON ONLY:
 {{
-    "target_tables": ["table1", "table2"],
+    "target_tables": ["table1"],
     "query_type": "single|join|aggregation",
     "is_ambiguous": false,
-    "clarification_needed": ""
+    "reasoning": "Brief explanation"
 }}"""
     
     try:
@@ -223,17 +219,19 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
     elif not state['query_results'] and not state['error_message']:
         state['final_answer'] = "The query executed successfully, but no data was returned."
     else:
-        # Construct context for formatting
-        data_sample = state['query_results'][:10]
+        # Give the formatter a MUCH larger window (up to 100 rows)
+        data_sample = state['query_results'][:100]
         columns = state.get('query_columns', [])
         data_str = str([dict(zip(columns, row)) for row in data_sample])
         
-        prompt = f"""You are a helpful Data Analyst. 
+        prompt = f"""You are a Senior Data Analyst. 
 The user asked: {state['user_query']}
-The data retrieved from the database is: {data_str}
+Data Retrieved: {data_str}
 
-Instruction: Provide a natural, friendly, and clear answer to the user based on this data. 
-If there's a lot of data, summarize the key points."""
+Instruction:
+1. Identify and explain the USER'S DATA (the CSV tables).
+2. Ignore system tables (alembic, dynamic_tables, users, etc.) unless they are specifically mentioned.
+3. Provide a clear, insightful answer."""
 
         try:
             response = client.models.generate_content(model=MODEL_ID, contents=prompt)
