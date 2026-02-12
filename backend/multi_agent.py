@@ -2,6 +2,7 @@
 Multi-Agent System for NL2SQL
 Architecture: Supervisor -> Reasoning -> Reflection -> Executor -> Formatter
 Using Official Google GenAI SDK (google-genai) for direct model access.
+HYBRID APPROACH: Local T5 Model (Primary) + Gemini 2.0 Flash (Expert Architect)
 """
 import os
 import json
@@ -11,6 +12,8 @@ from dotenv import load_dotenv
 from google import genai
 from langgraph.graph import StateGraph, END
 import database
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+import torch
 
 load_dotenv()
 
@@ -19,6 +22,22 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # Use the model that WE CONFIRMED worked in test_models.py
 MODEL_ID = "gemini-2.0-flash" 
+
+# ============================================================================
+# LOCAL ML MODEL INITIALIZATION (Hybrid Search)
+# ============================================================================
+LOCAL_MODEL_READY = False
+try:
+    print("🤖 Loading Local ML Model (T5-Small)...")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(current_dir, "fine_tuned_sql_model")
+    
+    local_tokenizer = T5Tokenizer.from_pretrained(model_path)
+    local_model = T5ForConditionalGeneration.from_pretrained(model_path)
+    LOCAL_MODEL_READY = True
+    print("✅ Local Model Loaded and Ready.")
+except Exception as e:
+    print(f"⚠️ Local model not loaded: {e}")
 
 # ============================================================================
 # STATE DEFINITION
@@ -66,7 +85,6 @@ Return JSON ONLY:
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text
-        
         # Robust JSON extraction
         json_match = re.search(r'\{(?:[^{}]|(?R))*\}', text, re.DOTALL)
         if json_match:
@@ -81,16 +99,29 @@ Return JSON ONLY:
     except Exception as e:
         print(f"⚠️ Supervisor Error: {e}")
         state['error_message'] = f"Supervisor Error: {str(e)}"
-        state['next_agent'] = "reasoning" # Fallback to reasoning
+        state['next_agent'] = "reasoning"
     
     return state
 
 # ============================================================================
-# AGENT 2: REASONING
+# AGENT 2: REASONING (Hybrid: Local + Gemini)
 # ============================================================================
 def reasoning_agent(state: MultiAgentState) -> MultiAgentState:
     print("🧠 REASONING: Building query plan...")
     
+    # HYBRID STEP: Use Local Model first if on first iteration
+    local_suggestion = ""
+    if state['iteration_count'] == 0 and LOCAL_MODEL_READY:
+        try:
+            input_text = f"translate English to SQL: {state['user_query']} | Schema: {state['db_schema']}"
+            inputs = local_tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
+            with torch.no_grad():
+                outputs = local_model.generate(**inputs, max_length=512)
+            local_suggestion = local_tokenizer.decode(outputs[0], skip_special_tokens=True)
+            print(f"📡 Local Model Suggested: {local_suggestion}")
+        except Exception:
+            pass
+
     prompt = f"""You are a Senior SQL Architect. 
 Your goal is to generate a correct PostgreSQL query based on the user's request.
 
@@ -99,12 +130,14 @@ TARGET TABLES: {state.get('target_tables', [])}
 DATABASE SCHEMA:
 {state['db_schema']}
 
+{f'LOCAL MODEL SUGGESTION: {local_suggestion}' if local_suggestion else ''}
+
 INSTRUCTIONS:
 1. Write a step-by-step reasoning plan.
 2. Generate the PostgreSQL query. 
-3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters like dashes or spaces.
+3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters.
 4. Use proper column names as shown in the schema.
-5. If execution failed previously (check error: {state.get('error_message')}), FIX the SQL.
+5. If a local suggestion is provided, verify it and fix any errors.
 
 Format:
 PLAN: [Describe your steps]
@@ -117,11 +150,9 @@ SQL: [Your PostgreSQL query]"""
         if "SQL:" in content:
             state['query_plan'] = content.split("SQL:")[0].replace("PLAN:", "").strip()
             sql_block = content.split("SQL:")[1].strip()
-            # Clean SQL from markdown
             sql = re.sub(r'```sql\n?|```', '', sql_block).strip()
             state['generated_sql'] = sql
         else:
-            # Fallback for unexpected format
             state['generated_sql'] = content.strip()
             
     except Exception as e:
@@ -194,8 +225,7 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
             state['error_message'] = ""
             state['next_agent'] = "formatter"
         else:
-            # results being None means execute_query caught an exception and returned (None, error_str)
-            state['error_message'] = columns # Error message is in second return value
+            state['error_message'] = columns
             if state['iteration_count'] < 2:
                 print(f"❌ Execution failed: {state['error_message']}. Turning back to reasoning...")
                 state['iteration_count'] += 1
@@ -273,7 +303,6 @@ app = create_multi_agent_graph()
 
 def run_multi_agent_query(user_query: str, db_schema: str):
     """Main entry for external calls"""
-    # CRITICAL: Initialize EVERY key in the TypedDict to avoid KeyErrors
     initial_state: MultiAgentState = {
         "user_query": user_query,
         "db_schema": db_schema,

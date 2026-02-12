@@ -14,6 +14,7 @@ sys.path.append(str(Path(__file__).parent))
 
 import database
 import auth
+import multi_agent
 from models import User
 
 app = FastAPI(title="NL2SQL API")
@@ -94,7 +95,6 @@ async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_sche
         schema = database.fetch_db_schema()
         
         # 2. Run the Multi-Agent System
-        import multi_agent
         result = multi_agent.run_multi_agent_query(query, schema)
         
         return {
