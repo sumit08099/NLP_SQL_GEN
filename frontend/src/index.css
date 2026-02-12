@@ -1,10 +1,10 @@
-/* 
-  Tailwind CSS v4 Configuration
-  Note: VS Code may show warnings for @theme and @layer rules. 
-  These are standard Tailwind v4 rules and can be ignored if the app builds successfully.
-*/
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800;900&display=swap');
+
+/* 
+  Tailwind CSS v4 Configuration
+  All @import statements must precede all other statements.
+*/
 
 @theme {
   --color-brand-50: #f0f4ff;
