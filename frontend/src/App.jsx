@@ -28,8 +28,12 @@ function App() {
   const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoBottom({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    fetchSchema();
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -184,8 +188,8 @@ function App() {
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] rounded-2xl p-4 shadow-xl ${msg.role === 'user'
-                  ? 'bg-primary-600 text-white rounded-tr-none'
-                  : 'bg-slate-800/50 border border-slate-700 backdrop-blur-md rounded-tl-none'
+                ? 'bg-primary-600 text-white rounded-tr-none'
+                : 'bg-slate-800/50 border border-slate-700 backdrop-blur-md rounded-tl-none'
                 }`}>
                 <p className="text-sm leading-relaxed">{msg.content}</p>
 
