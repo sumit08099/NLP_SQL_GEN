@@ -1,7 +1,6 @@
 google-generativeai
 psycopg2-binary
 python-dotenv
-streamlit
 pandas
 sqlalchemy
 langchain
@@ -11,3 +10,7 @@ transformers
 torch
 datasets
 openpyxl
+fastapi
+uvicorn
+python-multipart
+alembic

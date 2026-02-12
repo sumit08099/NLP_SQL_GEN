@@ -2,7 +2,6 @@
 __pycache__/
 *.pyc
 venv/
-.streamlit/
 .DS_Store
 backend/fine_tuned_sql_model/
 backend/results/
