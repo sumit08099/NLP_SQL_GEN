@@ -187,7 +187,11 @@ def run_multi_agent_query(user_query: str, db_schema: str):
     initial_state = {
         "user_query": user_query,
         "db_schema": db_schema,
+        "available_tables": [],
         "target_tables": [],
+        "query_plan": "",
+        "generated_sql": "",
+        "reflection_notes": "",
         "query_results": [],
         "error_message": "",
         "iteration_count": 0,
