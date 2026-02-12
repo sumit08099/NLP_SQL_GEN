@@ -10,3 +10,4 @@ langgraph
 transformers
 torch
 datasets
+openpyxl

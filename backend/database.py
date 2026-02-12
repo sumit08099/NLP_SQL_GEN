@@ -1,5 +1,7 @@
 import os
 import psycopg2
+import pandas as pd
+from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,6 +17,23 @@ def get_db_connection():
     except Exception as e:
         print(f"Error connecting to database: {e}")
         return None
+
+def get_sqlalchemy_engine():
+    url = os.getenv("DATABASE_URL")
+    if url and "pgbouncer=true" in url:
+        url = url.replace("?pgbouncer=true", "")
+    return create_engine(url)
+
+def ingest_dataframe(df, table_name):
+    """
+    Ingests a pandas DataFrame into Supabase as a new table.
+    """
+    engine = get_sqlalchemy_engine()
+    try:
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+        return True, f"Table '{table_name}' created/updated successfully."
+    except Exception as e:
+        return False, str(e)
 
 def fetch_db_schema():
     """
