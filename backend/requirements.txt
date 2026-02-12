@@ -14,3 +14,5 @@ fastapi
 uvicorn
 python-multipart
 alembic
+python-jose[cryptography]
+passlib[bcrypt]

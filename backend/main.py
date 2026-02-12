@@ -1,22 +1,20 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+# AI-Powered NL2SQL Platform
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import pandas as pd
 import io
-import auth
-from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
 import os
 import sys
 from pathlib import Path
+from typing import List, Annotated
+
 # Add current directory to path so database, agent, etc. can be imported
 sys.path.append(str(Path(__file__).parent))
 
 import database
-import agent
 import auth
 from models import User
-from typing import List, Annotated
 
 app = FastAPI(title="NL2SQL API")
 
@@ -63,6 +61,7 @@ async def signup(username: str = Form(...), email: str = Form(...), password: st
     db = database.get_db_session()
     # Check if user exists
     if db.query(User).filter(User.username == username).first():
+        db.close()
         raise HTTPException(status_code=400, detail="Username already registered")
     
     hashed_pass = auth.get_password_hash(password)
@@ -94,17 +93,16 @@ async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_sche
         # 1. Fetch Schema
         schema = database.fetch_db_schema()
         
-        # 2. Run the Multi-Agent System (Supervisor -> Reasoning -> Reflection)
+        # 2. Run the Multi-Agent System
         import multi_agent
-        
         result = multi_agent.run_multi_agent_query(query, schema)
         
         return {
             "answer": result['final_answer'],
             "sql": result.get('generated_sql'),
             "data": result.get('query_results'),
-            "plan": result.get('query_plan'),  # Show the reasoning
-            "reflection": result.get('reflection_notes')  # Show validation feedback
+            "plan": result.get('query_plan'),
+            "reflection": result.get('reflection_notes')
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
