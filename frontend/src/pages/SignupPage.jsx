@@ -10,7 +10,8 @@ const SignupPage = () => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        confirmPassword: ''
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -23,6 +24,18 @@ const SignupPage = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        // Validation
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return;
+        }
+
         setIsLoading(true);
         setError('');
 
@@ -36,7 +49,7 @@ const SignupPage = () => {
             setIsSuccess(true);
             setTimeout(() => navigate('/login'), 2500);
         } catch (err) {
-            setError(err.response?.data?.detail || 'Registration failed. Username or email might already be in use.');
+            setError(err.response?.data?.detail || 'Registration failed. Backend unavailable or internal error.');
         } finally {
             setIsLoading(false);
         }
@@ -58,7 +71,7 @@ const SignupPage = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
-                className="max-w-2xl w-full relative z-10"
+                className="max-w-3xl w-full relative z-10"
             >
                 {/* Branding */}
                 <div className="flex flex-col items-center mb-10 text-center">
@@ -68,7 +81,7 @@ const SignupPage = () => {
                     >
                         <BrainCircuit size={48} className="text-white" />
                     </motion.div>
-                    <h1 className="text-4xl font-black text-white tracking-tighter mb-2">OPERATIVE REGISTRY</h1>
+                    <h1 className="text-4xl font-black text-white tracking-tighter mb-2 uppercase">Operative Registry</h1>
                     <p className="text-slate-400 font-medium">Initialize your credentials for the secure data layer</p>
                 </div>
 
@@ -105,7 +118,7 @@ const SignupPage = () => {
                     </AnimatePresence>
 
                     <form onSubmit={handleSignup} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="md:col-span-2 space-y-3">
+                        <div className="space-y-3">
                             <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Universal Identity</label>
                             <div className="group relative">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
@@ -123,7 +136,7 @@ const SignupPage = () => {
                             </div>
                         </div>
 
-                        <div className="md:col-span-2 space-y-3">
+                        <div className="space-y-3">
                             <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Communication Channel</label>
                             <div className="group relative">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
@@ -141,8 +154,8 @@ const SignupPage = () => {
                             </div>
                         </div>
 
-                        <div className="md:col-span-2 space-y-3">
-                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Access Protocol (Password)</label>
+                        <div className="space-y-3">
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Access Protocol</label>
                             <div className="group relative">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
                                     <Lock size={20} />
@@ -153,7 +166,25 @@ const SignupPage = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     className="w-full h-16 glass bg-white/[0.03] rounded-2xl pl-14 pr-6 text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all placeholder:text-slate-600 text-lg border-white/5"
-                                    placeholder="••••••••"
+                                    placeholder="Password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Confirm Protocol</label>
+                            <div className="group relative">
+                                <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
+                                    <Shield size={20} />
+                                </div>
+                                <input
+                                    name="confirmPassword"
+                                    type="password"
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className="w-full h-16 glass bg-white/[0.03] rounded-2xl pl-14 pr-6 text-white focus:ring-2 focus:ring-purple-500/50 outline-none transition-all placeholder:text-slate-600 text-lg border-white/5"
+                                    placeholder="Verify Password"
                                     required
                                 />
                             </div>
@@ -163,7 +194,7 @@ const SignupPage = () => {
                             <button
                                 type="submit"
                                 disabled={isLoading || isSuccess}
-                                className="btn-primary w-full h-16 text-lg bg-indigo-600 shadow-indigo-600/20"
+                                className="btn-primary w-full h-16 text-lg bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/20"
                             >
                                 {isLoading ? <Loader2 className="animate-spin" size={24} /> : (
                                     <>
@@ -178,7 +209,7 @@ const SignupPage = () => {
                     <div className="mt-12 pt-8 border-t border-white/5 text-center">
                         <p className="text-slate-500 font-medium">
                             Already registered?{' '}
-                            <Link to="/login" className="text-purple-400 font-bold hover:text-purple-300 transition-all">
+                            <Link to="/login" className="text-purple-400 font-bold hover:text-purple-300 transition-all border-b border-purple-500/20 hover:border-purple-400">
                                 Return to Terminal
                             </Link>
                         </p>
@@ -186,7 +217,7 @@ const SignupPage = () => {
                 </div>
 
                 {/* Safety Badge */}
-                <div className="mt-10 flex items-center justify-center gap-3 text-slate-600">
+                <div className="mt-10 flex items-center justify-center gap-3 text-slate-600 opacity-50">
                     <Shield size={16} />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Protocol Active</span>
                 </div>

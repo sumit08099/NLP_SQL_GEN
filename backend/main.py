@@ -60,17 +60,28 @@ async def get_schema():
 @app.post("/signup")
 async def signup(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     db = database.get_db_session()
-    # Check if user exists
+    
+    # 1. Check if username exists
     if db.query(User).filter(User.username == username).first():
         db.close()
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=400, detail="Username is already taken")
     
-    hashed_pass = auth.get_password_hash(password)
-    new_user = User(username=username, email=email, hashed_password=hashed_pass)
-    db.add(new_user)
-    db.commit()
-    db.close()
-    return {"message": "User created successfully"}
+    # 2. Check if email exists
+    if db.query(User).filter(User.email == email).first():
+        db.close()
+        raise HTTPException(status_code=400, detail="Email is already registered")
+    
+    try:
+        hashed_pass = auth.get_password_hash(password)
+        new_user = User(username=username, email=email, hashed_password=hashed_pass)
+        db.add(new_user)
+        db.commit()
+        return {"message": "User created successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    finally:
+        db.close()
 
 @app.post("/login")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
