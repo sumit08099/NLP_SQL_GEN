@@ -53,21 +53,17 @@ async def chat(query: str = Form(...)):
         # 1. Fetch Schema
         schema = database.fetch_db_schema()
         
-        # 2. Run the Agent (Hybrid Local T5 + Gemini)
-        # We reuse the run_nl2sql_agent function from agent.py
-        initial_state = {
-            "user_query": query,
-            "db_schema": schema,
-            "iteration_count": 0
-        }
+        # 2. Run the Multi-Agent System (Supervisor -> Reasoning -> Reflection)
+        import multi_agent
         
-        # Invoke the LangGraph app
-        result = agent.app.invoke(initial_state)
+        result = multi_agent.run_multi_agent_query(query, schema)
         
         return {
             "answer": result['final_answer'],
             "sql": result.get('generated_sql'),
-            "data": result.get('query_results')
+            "data": result.get('query_results'),
+            "plan": result.get('query_plan'),  # Show the reasoning
+            "reflection": result.get('reflection_notes')  # Show validation feedback
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
