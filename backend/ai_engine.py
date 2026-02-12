@@ -1,18 +1,16 @@
 import os
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Initialize the new Google GenAI Client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_sql(user_prompt, schema_context):
     """
-    Uses Gemini 2.0 Flash to convert Natural Language to SQL.
+    Uses Gemini 2.0 Flash to convert Natural Language to SQL using the news google-genai SDK.
     """
-    model = genai.GenerativeModel('gemini-2.0-flash')
-    
     full_prompt = f"""
     You are an expert SQL assistant. Your task is to convert the following user question into a valid PostgreSQL query based on the provided database schema.
     
@@ -26,15 +24,16 @@ def generate_sql(user_prompt, schema_context):
     3. If the question cannot be answered by the schema, state that.
     """
     
-    response = model.generate_content(full_prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=full_prompt
+    )
     return response.text.strip()
 
 def format_answer(user_prompt, results, columns):
     """
     Takes the SQL results and formats them into a human-readable answer using Gemini.
     """
-    model = genai.GenerativeModel('gemini-2.0-flash')
-    
     data_str = str([dict(zip(columns, row)) for row in results])
     
     full_prompt = f"""
@@ -46,5 +45,8 @@ def format_answer(user_prompt, results, columns):
     Answer:
     """
     
-    response = model.generate_content(full_prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=full_prompt
+    )
     return response.text.strip()

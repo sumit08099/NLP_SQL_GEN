@@ -3,6 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 import os
+import sys
+from pathlib import Path
+# Add current directory to path so database, agent, etc. can be imported
+sys.path.append(str(Path(__file__).parent))
+
 import database
 import agent
 import ai_engine
