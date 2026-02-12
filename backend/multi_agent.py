@@ -43,7 +43,7 @@ def supervisor_agent(state: MultiAgentState) -> MultiAgentState:
     """
     print("🎯 SUPERVISOR: Analyzing query context...")
     
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp", google_api_key=os.getenv("GEMINI_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
     
     prompt = f"""You are a SQL Query Supervisor. Analyze this request:
 
@@ -93,7 +93,7 @@ def reasoning_agent(state: MultiAgentState) -> MultiAgentState:
     """
     print("🧠 REASONING: Building query plan...")
     
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
     
     prompt = f"""You are a SQL Query Architect. Create a precise SQL query.
 
@@ -146,7 +146,7 @@ def reflection_agent(state: MultiAgentState) -> MultiAgentState:
     """
     print("🔍 REFLECTION: Validating SQL...")
     
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
     
     prompt = f"""You are a SQL Validator. Review this query for correctness.
 
@@ -224,7 +224,7 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
         state['next_agent'] = "END"
         return state
     
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=os.getenv("GEMINI_API_KEY"))
     
     prompt = f"""Create a natural language answer from these SQL results.
 
