@@ -1,4 +1,10 @@
+/* 
+  Tailwind CSS v4 Configuration
+  Note: VS Code may show warnings for @theme and @layer rules. 
+  These are standard Tailwind v4 rules and can be ignored if the app builds successfully.
+*/
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800;900&display=swap');
 
 @theme {
   --color-brand-50: #f0f4ff;
@@ -16,41 +22,111 @@
 
 @layer base {
   body {
-    @apply bg-[#020617] text-slate-200 antialiased selection:bg-brand-500/30 selection:text-brand-200;
+    background-color: #020617;
+    color: #e2e8f0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Outfit', sans-serif;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0, 0, 0, 0.37)];
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
   .glass-dark {
-    @apply bg-slate-900/40 backdrop-blur-2xl border border-white/5 shadow-2xl;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
   .glass-card {
-    @apply relative overflow-hidden rounded-[2.5rem] bg-gradient-to-b from-white/10 to-white/[0.02] backdrop-blur-2xl border border-white/10 shadow-2xl;
+    position: relative;
+    overflow: hidden;
+    border-radius: 2.5rem;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
 
   .nav-item {
-    @apply flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 text-slate-400 hover:text-white hover:bg-white/5 active:scale-95;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    color: #94a3b8;
+  }
+
+  .nav-item:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-item:active {
+    transform: scale(0.95);
   }
 
   .nav-item-active {
-    @apply bg-brand-600/20 text-brand-400 border border-brand-500/20 shadow-[0_0_20px_rgba(59, 98, 255, 0.1)];
+    background-color: rgba(59, 98, 255, 0.2);
+    color: #93b1ff;
+    border: 1px solid rgba(59, 98, 255, 0.2);
+    box-shadow: 0 0 20px rgba(59, 98, 255, 0.1);
   }
 
   .btn-primary {
-    @apply relative flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-brand-600 font-bold text-white transition-all duration-300 shadow-[0_10px_20px_-10px_rgba(59, 98, 255, 0.5)] hover:shadow-[0_20px_30px_-10px_rgba(59, 98, 255, 0.5)] hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:pointer-events-none overflow-hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border-radius: 1rem;
+    background-color: #2540ff;
+    font-weight: 700;
+    color: white;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    box-shadow: 0 10px 20px -10px rgba(59, 98, 255, 0.5);
+    overflow: hidden;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 20px 30px -10px rgba(59, 98, 255, 0.5);
+    transform: translateY(-0.125rem);
+  }
+
+  .btn-primary:active {
+    transform: scale(0.95);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .btn-primary::after {
-    @apply content-[''] absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-1000;
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+    transition-property: transform;
+    transition-duration: 1000ms;
   }
 
   .btn-primary:hover::after {
-    @apply translate-x-full;
+    transform: translateX(100%);
   }
 }
 
@@ -59,11 +135,19 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-slate-800 rounded-full hover:bg-slate-700 transition-colors;
+  background-color: #1e293b;
+  border-radius: 9999px;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #334155;
 }
 
 @keyframes float {

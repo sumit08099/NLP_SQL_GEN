@@ -94,7 +94,7 @@ function HomePage() {
             }]);
             fetchSchema();
             setFile(null);
-        } catch (error: any) {
+        } catch (error) {
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: `Sync Error: ${error.response?.data?.detail || error.message}`
@@ -137,7 +137,7 @@ function HomePage() {
                 plan: response.data.plan,
                 reflection: response.data.reflection
             }]);
-        } catch (error: any) {
+        } catch (error) {
             let errorMsg = error.response?.data?.detail || error.message;
             if (error.response?.status === 401) {
                 handleLogout();

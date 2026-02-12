@@ -3,10 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { LogIn, User, Lock, BrainCircuit, ArrowRight, Loader2, AlertCircle, Sparkles } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
+import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-function cn(...inputs: ClassValue[]) {
+function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
@@ -19,7 +19,7 @@ const LoginPage = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
@@ -33,7 +33,7 @@ const LoginPage = () => {
             localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('username', username);
             navigate('/');
-        } catch (err: any) {
+        } catch (err) {
             setError(err.response?.data?.detail || 'Invalid credentials. Please check your username and password.');
         } finally {
             setIsLoading(false);

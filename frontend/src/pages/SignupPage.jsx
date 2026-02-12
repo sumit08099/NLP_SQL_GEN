@@ -17,11 +17,11 @@ const SignupPage = () => {
     const [isSuccess, setIsSuccess] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSignup = async (e: React.FormEvent) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
@@ -35,7 +35,7 @@ const SignupPage = () => {
             await axios.post(`${API_BASE_URL}/signup`, data);
             setIsSuccess(true);
             setTimeout(() => navigate('/login'), 2500);
-        } catch (err: any) {
+        } catch (err) {
             setError(err.response?.data?.detail || 'Registration failed. Username or email might already be in use.');
         } finally {
             setIsLoading(false);
