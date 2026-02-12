@@ -26,7 +26,10 @@ import torch
 
 try:
     print("🤖 Loading Local ML Model...")
-    model_path = "./fine_tuned_sql_model"
+    # Get the directory where agent.py is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(current_dir, "fine_tuned_sql_model")
+    
     local_tokenizer = T5Tokenizer.from_pretrained(model_path)
     local_model = T5ForConditionalGeneration.from_pretrained(model_path)
     LOCAL_MODEL_READY = True
