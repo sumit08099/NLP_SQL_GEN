@@ -43,7 +43,7 @@ def supervisor_agent(state: MultiAgentState) -> MultiAgentState:
     """
     print("🎯 SUPERVISOR: Analyzing query context...")
     
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-thinking-exp", google_api_key=os.getenv("GEMINI_API_KEY"))
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp", google_api_key=os.getenv("GEMINI_API_KEY"))
     
     prompt = f"""You are a SQL Query Supervisor. Analyze this request:
 
