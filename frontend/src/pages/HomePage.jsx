@@ -26,6 +26,7 @@ import {
     Layout,
     Cpu,
     RefreshCw,
+    Clock
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -49,7 +50,7 @@ function HomePage() {
     const [tableName, setTableName] = useState('');
     const [isUploading, setIsUploading] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [schema, setSchema] = useState([]);
+    const [schema, setSchema] = useState('');
     const [showTechDetails, setShowTechDetails] = useState({});
     const [token] = useState(localStorage.getItem('token'));
     const [username] = useState(localStorage.getItem('username') || 'Operative');

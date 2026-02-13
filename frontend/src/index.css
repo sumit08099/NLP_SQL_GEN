@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800;900&display=swap');
 
 /* 
   Tailwind CSS v4 Configuration
-  All @import statements must precede all other statements.
 */
 
 @theme {
@@ -20,14 +19,12 @@
   --color-brand-950: #0a115c;
 }
 
-@layer base {
-  body {
-    background-color: #020617;
-    color: #e2e8f0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: 'Outfit', sans-serif;
-  }
+body {
+  background-color: #020617;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Outfit', sans-serif;
 }
 
 @layer components {
