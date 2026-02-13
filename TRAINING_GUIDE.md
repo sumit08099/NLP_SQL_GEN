@@ -45,7 +45,7 @@ For student projects and budget-conscious development, we use **T5-Small** (Text
 - **Size:** ~60 Million parameters (very efficient).
 - **Latency:** Fast inference even on standard laptop CPUs.
 - **Accuracy:** When fine-tuned on Spider, it successfully handles 70-85% of standard SQL queries.
-- **Safety:** We complement this model with Gemini 2.0 Flash in `agent.py` to handle the remaining complex cases.
+- **Safety:** We complement this model with Gemini 2.0 Flash in `multi_agent.py` to handle the remaining complex cases.
 
 ---
 
@@ -63,6 +63,6 @@ Look for these markers in your logs to ensure a "Perfect Training":
 Once training is complete:
 1. Download `fine_tuned_sql_model.zip` from Colab.
 2. Unzip it into the project root.
-3. The `agent.py` script will automatically detect the folder and load the weights.
+3. The `multi_agent.py` script will automatically detect the folder and load the weights.
 
 **Note:** The model folder is ignored by Git in this project to prevent repository bloat, as the weights are ~250MB.

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import logo from '../assets/logo.jpeg';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -188,7 +189,7 @@ function HomePage() {
             >
                 <div className="flex items-center gap-4 mb-10 px-2 leading-tight">
                     <div className="p-3 glass-card shadow-lg shadow-brand-500/10">
-                        <BrainCircuit size={24} className="text-brand-400" />
+                        <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
                     </div>
                     <div>
                         <h1 className="text-xl font-black tracking-tighter text-white">SQL MASTER</h1>
@@ -405,7 +406,7 @@ function HomePage() {
                                                 >
                                                     <div className="absolute inset-0 bg-brand-400/20 animate-pulse" />
                                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <BrainCircuit size={36} className="text-white relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                                                    <img src={logo} alt="AI Core" className="w-9 h-9 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                                                 </motion.div>
                                                 <span className="text-[9px] font-black text-brand-400 uppercase tracking-widest">Neural Core</span>
                                             </div>

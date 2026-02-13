@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import logo from '../assets/logo.jpeg';
 
 function cn(...inputs) {
     return twMerge(clsx(inputs));
@@ -93,7 +94,7 @@ const SignupPage = () => {
                         whileHover={{ scale: 1.05 }}
                         className="p-5 glass-card mb-6 shadow-2xl shadow-purple-500/20"
                     >
-                        <BrainCircuit size={48} className="text-white" />
+                        <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
                     </motion.div>
                     <h1 className="text-4xl font-black text-white tracking-tighter mb-2 uppercase">Operative Registry</h1>
                     <p className="text-slate-400 font-medium">Initialize your credentials for the secure data layer</p>

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import logo from '../assets/logo.jpeg';
 
 function cn(...inputs) {
     return twMerge(clsx(inputs));
@@ -83,7 +84,7 @@ const LoginPage = () => {
                         whileTap={{ scale: 0.95 }}
                         className="p-5 glass-card mb-6 shadow-2xl shadow-brand-500/20 group"
                     >
-                        <BrainCircuit size={48} className="text-white group-hover:text-brand-400 transition-colors" />
+                        <img src={logo} alt="Logo" className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" />
                     </motion.div>
                     <h1 className="text-5xl font-black text-white tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                         SQL MASTER

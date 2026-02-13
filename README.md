@@ -75,7 +75,10 @@ SECRET_KEY="your-random-secure-key"
 alembic upgrade head
 
 # Start Backend
+# Start Backend
 python main.py
+# Or for hot-reloading:
+uvicorn main:app --reload
 
 # Start Frontend (In frontend folder)
 npm run dev
