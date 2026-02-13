@@ -96,7 +96,9 @@ function HomePage() {
         formData.append('table_name', tableName);
 
         try {
-            await axios.post(`${API_BASE_URL}/upload`, formData);
+            await axios.post(`${API_BASE_URL}/upload`, formData, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             setMessages(prev => [...prev, {
                 role: 'assistant',
                 content: `Node Synchronized. Target "${tableName}" has been successfully ingested into the persistent knowledge layer. I have analyzed its structure and am ready for queries.`
@@ -115,7 +117,9 @@ function HomePage() {
 
     const fetchSchema = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/schema`);
+            const response = await axios.get(`${API_BASE_URL}/schema`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             setSchema(response.data.schema);
         } catch (error) {
             console.error('Error fetching schema:', error);
@@ -354,7 +358,10 @@ function HomePage() {
                             <Search size={16} className="text-slate-500 group-hover:text-brand-400" />
                             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-brand-400">Search Logs</span>
                         </div>
-                        <div className="p-2.5 glass-card hover:bg-white/5 transition-all cursor-pointer">
+                        <div
+                            onClick={fetchSchema}
+                            className="p-2.5 glass-card hover:bg-white/5 transition-all cursor-pointer active:scale-95"
+                        >
                             <RefreshCw size={16} className="text-slate-400" />
                         </div>
                     </div>
