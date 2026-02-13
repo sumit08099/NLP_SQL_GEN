@@ -56,6 +56,7 @@ function HomePage() {
     const [showTechDetails, setShowTechDetails] = useState({});
     const [token] = useState(localStorage.getItem('token'));
     const [username] = useState(localStorage.getItem('username') || 'Operative');
+    const [selectedForAmbiguity, setSelectedForAmbiguity] = useState([]);
 
     const navigate = useNavigate();
     const chatEndRef = useRef(null);
@@ -165,7 +166,9 @@ function HomePage() {
                 sql: response.data.sql,
                 data: response.data.data,
                 plan: response.data.plan,
-                reflection: response.data.reflection
+                reflection: response.data.reflection,
+                is_ambiguous: response.data.is_ambiguous,
+                potential_matches: response.data.potential_matches
             }]);
         } catch (error) {
             let errorMsg = error.response?.data?.detail || error.message;
@@ -389,6 +392,46 @@ function HomePage() {
                                                 <div className="text-base md:text-lg text-slate-200 leading-relaxed font-medium whitespace-pre-wrap">
                                                     {msg.content}
                                                 </div>
+
+                                                {/* AMBIGUITY UI: Selection of tables */}
+                                                {msg.is_ambiguous && msg.potential_matches && (
+                                                    <div className="mt-6 p-6 glass-card border-brand-500/20 bg-brand-500/[0.03] space-y-4">
+                                                        <div className="flex flex-wrap gap-3">
+                                                            {msg.potential_matches.map(table => (
+                                                                <label key={table} className="flex items-center gap-3 px-4 py-2.5 bg-black/40 border border-white/5 rounded-2xl cursor-pointer hover:border-brand-500/50 transition-all group">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="w-4 h-4 rounded border-white/10 text-brand-500 focus:ring-brand-500 bg-transparent"
+                                                                        checked={selectedForAmbiguity.includes(table)}
+                                                                        onChange={(e) => {
+                                                                            if (e.target.checked) {
+                                                                                setSelectedForAmbiguity(prev => [...prev, table]);
+                                                                            } else {
+                                                                                setSelectedForAmbiguity(prev => prev.filter(t => t !== table));
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase tracking-wider">{table}</span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (selectedForAmbiguity.length > 0) {
+                                                                    const tableString = selectedForAmbiguity.join(', ');
+                                                                    const newQuery = `Using tables [${tableString}], original request: ${messages[i - 1].content}`;
+                                                                    setQuery(newQuery);
+                                                                    setSelectedForAmbiguity([]);
+                                                                    // We could auto-send here too
+                                                                }
+                                                            }}
+                                                            className="flex items-center gap-2 px-6 py-2.5 bg-brand-500 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-brand-500/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                                            disabled={selectedForAmbiguity.length === 0}
+                                                        >
+                                                            Confirm Neural Focus <ChevronRight size={14} />
+                                                        </button>
+                                                    </div>
+                                                )}
 
                                                 {/* Chain Analysis Toggle */}
                                                 {(msg.sql || msg.plan) && (

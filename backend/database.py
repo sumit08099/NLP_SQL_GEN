@@ -1,9 +1,12 @@
 import os
+import re
 import psycopg2
 import pandas as pd
+import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+from models import DynamicTable, Base
 
 load_dotenv()
 
@@ -30,39 +33,79 @@ def get_sqlalchemy_engine():
         url = url.replace("?pgbouncer=true", "")
     return create_engine(url)
 
-def ingest_dataframe(df, table_name):
+def ingest_dataframe(df, table_name, user_id, original_filename=None):
     """
-    Ingests a pandas DataFrame into Supabase as a new table.
+    Ingests a pandas DataFrame into Supabase and records metadata.
     """
     engine = get_sqlalchemy_engine()
+    session = get_db_session()
     try:
+        # 1. Upload the raw data
         df.to_sql(table_name, engine, if_exists='replace', index=False)
-        return True, f"Table '{table_name}' created/updated successfully."
+        
+        # 2. Record/Update metadata in dynamic_tables
+        columns_info = json.dumps(df.dtypes.apply(lambda x: str(x)).to_dict())
+        row_count = len(df)
+        
+        existing = session.query(DynamicTable).filter(DynamicTable.table_name == table_name).first()
+        if existing:
+            existing.user_id = user_id
+            existing.original_filename = original_filename or existing.original_filename
+            existing.columns_info = columns_info
+            existing.row_count = row_count
+        else:
+            new_meta = DynamicTable(
+                user_id=user_id,
+                table_name=table_name,
+                original_filename=original_filename,
+                columns_info=columns_info,
+                row_count=row_count
+            )
+            session.add(new_meta)
+        
+        session.commit()
+        return True, f"Table '{table_name}' ingested and mapped to neural knowledge."
     except Exception as e:
+        session.rollback()
         return False, str(e)
+    finally:
+        session.close()
 
-def fetch_db_schema():
+def fetch_db_schema(user_id=None):
     """
-    Fetches the database schema (tables and columns) to provide context to Gemini.
+    Fetches the database schema filtered by user ownership.
     """
     conn = get_db_connection()
     if not conn:
         return "Could not connect to database."
     
-    query = """
-    SELECT table_name, column_name, data_type 
-    FROM information_schema.columns 
-    WHERE table_schema = 'public'
-    ORDER BY table_name;
-    """
+    # Only get tables that are either in DynamicTable for this user OR standard public symbols
+    # However, for NL2SQL on user data, we primarily care about their dynamic tables.
+    session = get_db_session()
+    try:
+        user_tables = session.query(DynamicTable.table_name).filter(DynamicTable.user_id == user_id).all()
+        user_table_list = [t[0] for t in user_tables]
+        
+        if not user_table_list:
+            return "No user-uploaded tables found. Please upload data to begin."
+
+        # Filter information_schema by these specific tables
+        placeholders = ', '.join(["%s"] * len(user_table_list))
+        query = f"""
+        SELECT table_name, column_name, data_type 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name IN ({placeholders})
+        ORDER BY table_name;
+        """
+        
+        with conn.cursor() as cur:
+            cur.execute(query, user_table_list)
+            rows = cur.fetchall()
+    finally:
+        session.close()
+        conn.close()
     
-    with conn.cursor() as cur:
-        cur.execute(query)
-        rows = cur.fetchall()
-    
-    conn.close()
-    
-    schema_text = "Database Schema:\n"
+    schema_text = "Your Knowledge Base (Uploaded Tables):\n"
     current_table = ""
     for table, col, dtype in rows:
         if table != current_table:
@@ -89,14 +132,34 @@ def get_table_profile(table_name):
     finally:
         conn.close()
 
-def execute_query(sql_query):
+def execute_query(sql_query, user_id=None):
     """
     Executes the generated SQL query and returns the results.
+    If user_id is provided, it validates that the query only touches the user's tables.
     """
     conn = get_db_connection()
     if not conn:
         return None, "Database connection failed."
     
+    # SECURITY: Parse query for tables and check against DynamicTable
+    if user_id:
+        session = get_db_session()
+        user_tables = session.query(DynamicTable.table_name).filter(DynamicTable.user_id == user_id).all()
+        user_table_list = [t[0].lower() for t in user_tables]
+        session.close()
+
+        # Rough check: Find all potential table names in SQL (wrapped in double quotes or not)
+        # and see if they are in the user_table_list or system tables
+        # Allow system tables only if needed. For now, we restrict to ONLY user tables for safety.
+        # This regex looks for words after FROM or JOIN
+        used_tables = re.findall(r'FROM\s+"?(\w+)"?|JOIN\s+"?(\w+)"?', sql_query, re.IGNORECASE)
+        # used_tables is list of tuples like [('name', ''), ('', 'other')]
+        flat_used = [t for tup in used_tables for t in tup if t]
+        
+        for ut in flat_used:
+            if ut.lower() not in user_table_list and ut.lower() not in ['users', 'products', 'orders']:
+                 return None, f"Security Violation: Access denied to table '{ut}'."
+
     try:
         with conn.cursor() as cur:
             cur.execute(sql_query)

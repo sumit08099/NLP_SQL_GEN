@@ -69,6 +69,20 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def include_object(object, name, type_, reflected, compare_to):
+    """
+    Tells Alembic which objects to include in the autogeneration.
+    We ignore any table that isn't in our Base.metadata, specifically
+    user-uploaded dynamic tables.
+    """
+    if type_ == "table":
+        # Ignore tables not in our SQLAlchemy models (e.g., user-uploaded CSVs)
+        # And ignore alembic's own version table
+        if name in target_metadata.tables or name == "alembic_version":
+            return True
+        return False
+    return True
+
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode.
 
@@ -84,7 +98,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, 
+            target_metadata=target_metadata,
+            include_object=include_object
         )
 
         with context.begin_transaction():

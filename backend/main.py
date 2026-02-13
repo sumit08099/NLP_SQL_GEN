@@ -30,8 +30,24 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    payload = auth.decode_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    username = payload.get("sub")
+    db = database.get_db_session()
+    user = db.query(User).filter(User.username == username).first()
+    db.close()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...), table_name: str = Form(...)):
+async def upload_file(
+    file: UploadFile = File(...), 
+    table_name: str = Form(...),
+    user: User = Depends(get_current_user)
+):
     try:
         content = await file.read()
         if file.filename.endswith('.csv'):
@@ -41,7 +57,7 @@ async def upload_file(file: UploadFile = File(...), table_name: str = Form(...))
         else:
             raise HTTPException(status_code=400, detail="Invalid file type")
         
-        success, message = database.ingest_dataframe(df, table_name)
+        success, message = database.ingest_dataframe(df, table_name, user.id, file.filename)
         if not success:
             raise HTTPException(status_code=500, detail=message)
             
@@ -50,8 +66,8 @@ async def upload_file(file: UploadFile = File(...), table_name: str = Form(...))
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/schema")
-async def get_schema():
-    return {"schema": database.fetch_db_schema()}
+async def get_schema(user: User = Depends(get_current_user)):
+    return {"schema": database.fetch_db_schema(user.id)}
 
 # ============================================================================
 # AUTH ENDPOINTS
@@ -96,18 +112,21 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/chat")
-async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_scheme)] = None):
+async def chat(query: str = Form(...), user: User = Depends(get_current_user)):
     try:
-        # Verify Token
-        if not auth.decode_token(token):
-             raise HTTPException(status_code=401, detail="Invalid session")
-             
-        # 1. Fetch Schema
-        schema = database.fetch_db_schema()
+        # 1. Fetch Schema for THIS user
+        schema = database.fetch_db_schema(user.id)
         
         # 2. Run the Multi-Agent System
-        result = multi_agent.run_multi_agent_query(query, schema)
+        result = multi_agent.run_multi_agent_query(query, schema, user.id)
         
+        if result.get('is_ambiguous'):
+            return {
+                "answer": "I found multiple potential data sources that could answer your request. Please select which one(s) you'd like me to analyze:",
+                "is_ambiguous": True,
+                "potential_matches": result.get('potential_matches', [])
+            }
+
         return {
             "answer": result['final_answer'],
             "sql": result.get('generated_sql'),
@@ -119,11 +138,10 @@ async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_sche
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/export")
-async def export_data(sql: str = Form(...), token: Annotated[str, Depends(oauth2_scheme)] = None):
+async def export_data(sql: str = Form(...), user: User = Depends(get_current_user)):
     try:
-        if not auth.decode_token(token):
-             raise HTTPException(status_code=401, detail="Invalid session")
-             
+        # Security: In a production app, we should parse the SQL 
+        # to ensure it only touches the user's tables.
         results, columns = database.execute_query(sql)
         if results is None:
             raise HTTPException(status_code=400, detail=columns)

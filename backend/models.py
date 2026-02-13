@@ -81,12 +81,17 @@ class DynamicTable(Base):
     __tablename__ = "dynamic_tables"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     table_name = Column(String, unique=True, nullable=False, comment="Name of the dynamically created table")
     original_filename = Column(String, comment="Original uploaded file name")
     columns_info = Column(Text, comment="JSON string describing column names and types")
     row_count = Column(Integer, comment="Number of rows in the table")
     uploaded_at = Column(DateTime, default=datetime.utcnow, comment="Upload timestamp")
     
+    # Relationship
+    owner = relationship("User")
+
     __table_args__ = (
         Index('idx_dynamic_table_name', 'table_name'),
+        Index('idx_dynamic_table_user', 'user_id'),
     )

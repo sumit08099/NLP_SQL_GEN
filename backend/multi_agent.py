@@ -59,6 +59,9 @@ class MultiAgentState(TypedDict):
     iteration_count: int
     final_answer: str
     next_agent: str
+    is_ambiguous: bool
+    potential_matches: List[str]
+    user_id: int
 
 # ============================================================================
 # AGENT 1: SUPERVISOR
@@ -95,6 +98,19 @@ Return JSON ONLY:
         data = json.loads(clean_json)
         state['target_tables'] = data.get("target_tables", [])
         state['query_type'] = data.get("query_type", "single")
+        state['is_ambiguous'] = data.get("is_ambiguous", False)
+        
+        # Determine potential matches if ambiguous or no target table found
+        if state['is_ambiguous'] or not state['target_tables']:
+            # Extract table names from schema
+            tables = re.findall(r"Table: (\w+)", state['db_schema'])
+            if len(tables) > 1:
+                state['is_ambiguous'] = True
+                state['potential_matches'] = tables
+                state['next_agent'] = END # Stop and ask user
+                return state
+
+        state['potential_matches'] = []
         
         # SMARTER UNDERSTANDING: Fetch data profile for target tables
         profile_context = ""
@@ -240,7 +256,7 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
         return state
 
     try:
-        results, columns = database.execute_query(sql)
+        results, columns = database.execute_query(sql, user_id=state.get('user_id'))
         if results is not None:
             # If we succeeded after a previous error, save the correction to memory
             if state['iteration_count'] > 0 and state.get('error_message'):
@@ -333,11 +349,11 @@ def create_multi_agent_graph():
 
 app = create_multi_agent_graph()
 
-def run_multi_agent_query(user_query: str, db_schema: str):
-    """Main entry for external calls"""
+def run_multi_agent_query(query: str, schema: str, user_id: int = None) -> dict:
+    """Entry point to run the langgraph agent system"""
     initial_state: MultiAgentState = {
-        "user_query": user_query,
-        "db_schema": db_schema,
+        "user_query": query,
+        "db_schema": schema,
         "available_tables": [],
         "target_tables": [],
         "query_type": "single",
@@ -349,6 +365,9 @@ def run_multi_agent_query(user_query: str, db_schema: str):
         "error_message": "",
         "iteration_count": 0,
         "final_answer": "",
-        "next_agent": "supervisor"
+        "next_agent": "supervisor",
+        "is_ambiguous": False,
+        "potential_matches": [],
+        "user_id": user_id
     }
     return app.invoke(initial_state)
