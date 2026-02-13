@@ -111,7 +111,7 @@ async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_sche
         return {
             "answer": result['final_answer'],
             "sql": result.get('generated_sql'),
-            "data": result.get('query_results'),
+            "data": [dict(zip(result.get('query_columns', []), row)) for row in result.get('query_results', [])],
             "plan": result.get('query_plan'),
             "reflection": result.get('reflection_notes')
         }
