@@ -79,12 +79,15 @@ IMPORTANT:
 - If the user asks about "data" or "tables", they almost certainly mean their CSV files.
 
 Return JSON ONLY:
-{{
+{
     "target_tables": ["table1"],
     "query_type": "single|join|aggregation",
-    "is_ambiguous": false,
+    "is_ambiguous": true/false,
     "reasoning": "Brief explanation"
-}}"""
+}
+
+STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multiple tables exist in the schema, you MUST set "is_ambiguous": true and leave "target_tables" empty. DO NOT GUESS. Only set "target_tables" if you are 95% sure which one the user means based on keywords.
+"""
     
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
@@ -100,28 +103,34 @@ Return JSON ONLY:
         state['query_type'] = data.get("query_type", "single")
         state['is_ambiguous'] = data.get("is_ambiguous", False)
         
-        # Determine potential matches if ambiguous or no target table found
-        if state['is_ambiguous'] or not state['target_tables']:
-            # Extract table names from schema
-            tables = re.findall(r"Table: (\w+)", state['db_schema'])
-            if len(tables) > 1:
-                state['is_ambiguous'] = True
-                state['potential_matches'] = tables
-                state['next_agent'] = END # Stop and ask user
-                return state
+        # Get list of all user tables from schema string
+        # format is "Table: table_name"
+        all_user_tables = re.findall(r"Table: (\w+)", state['db_schema'])
+        
+        # Filter out system tables if possible for potential_matches
+        all_user_tables = [t for t in all_user_tables if t not in ['alembic_version', 'dynamic_tables', 'users', 'products', 'orders']]
+
+        # STRENGTHEN AMBIGUITY: If generic query and > 1 table, force ambiguity
+        if (not state.get('target_tables') or state.get('is_ambiguous')) and len(all_user_tables) > 1:
+            state['is_ambiguous'] = True
+            state['potential_matches'] = all_user_tables
+            state['next_agent'] = END
+            return state
 
         state['potential_matches'] = []
         
         # SMARTER UNDERSTANDING: Fetch data profile for target tables
         profile_context = ""
         for table in state['target_tables']:
-            profile = database.get_table_profile(table)
-            if profile:
-                profile_context += f"\nData Profile (Table: {table}):\n{profile}\n"
+            # Verify table exists in schema to avoid hallucinatory profile calls
+            if table in all_user_tables or table.lower() in [t.lower() for t in all_user_tables]:
+                profile = database.get_table_profile(table)
+                if profile:
+                    profile_context += f"\nData Profile (Table: {table}):\n{profile}\n"
         
         if profile_context:
             state['db_schema'] += f"\n\nACTUAL DATA SAMPLES BY SUPERVISOR:{profile_context}"
-            print("📊 Supervisor enhanced context with actual data samples.")
+            print(f"📊 Supervisor enhanced context for {state['target_tables']}")
 
         state['next_agent'] = "reasoning"
     except Exception as e:
@@ -176,6 +185,7 @@ INSTRUCTIONS:
 3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters.
 4. Use proper column names as shown in the schema.
 5. If a local suggestion or past lesson is provided, incorporate those insights.
+6. STRICTURE: Only use tables listed in "TARGET TABLES". If TARGET TABLES is empty, wait for supervisor instructions. DO NOT GUESS a table if it is not in the target list.
 
 Format:
 PLAN: [Describe your steps]

@@ -148,18 +148,18 @@ function HomePage() {
         }
     };
 
-    const handleSend = async () => {
-        if (!query.trim()) return;
+    const handleSend = async (forcedQuery = null) => {
+        const queryToSend = forcedQuery || query;
+        if (!queryToSend.trim()) return;
 
-        const userMsg = { role: 'user', content: query };
+        const userMsg = { role: 'user', content: queryToSend };
         setMessages(prev => [...prev, userMsg]);
-        const currentQuery = query;
         setQuery('');
         setIsProcessing(true);
 
         try {
             const formData = new FormData();
-            formData.append('query', currentQuery);
+            formData.append('query', queryToSend);
 
             const config = { headers: { Authorization: `Bearer ${token}` } };
             const response = await axios.post(`${API_BASE_URL}/chat`, formData, config);
@@ -181,12 +181,16 @@ function HomePage() {
             } else {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
-                    content: `Protocol Violation: ${errorMsg}`
+                    content: `System Error: ${errorMsg}`
                 }]);
             }
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const clearMessages = () => {
+        setMessages([]);
     };
 
     return (
@@ -354,15 +358,15 @@ function HomePage() {
                     </div>
 
                     <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3 cursor-pointer hover:text-brand-400 transition-colors group">
-                            <Search size={16} className="text-slate-500 group-hover:text-brand-400" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-brand-400">Search Logs</span>
+                        <div onClick={clearMessages} className="flex items-center gap-3 cursor-pointer hover:text-red-400 transition-colors group">
+                            <Trash2 size={16} className="text-slate-500 group-hover:text-red-400" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 group-hover:text-red-400">Clear Logic Path</span>
                         </div>
                         <div
                             onClick={fetchSchema}
-                            className="p-2.5 glass-card hover:bg-white/5 transition-all cursor-pointer active:scale-95"
+                            className="p-2.5 glass-card hover:bg-brand-500/10 transition-all cursor-pointer active:scale-90 ring-1 ring-white/5"
                         >
-                            <RefreshCw size={16} className="text-slate-400" />
+                            <RefreshCw size={16} className="text-brand-400" />
                         </div>
                     </div>
                 </header>
@@ -402,23 +406,37 @@ function HomePage() {
 
                                                 {/* AMBIGUITY UI: Selection of tables */}
                                                 {msg.is_ambiguous && msg.potential_matches && (
-                                                    <div className="mt-6 p-6 glass-card border-brand-500/20 bg-brand-500/[0.03] space-y-4">
-                                                        <div className="flex flex-wrap gap-3">
+                                                    <div className="mt-8 p-8 glass-card border-brand-500/30 bg-brand-500/[0.05] shadow-inner shadow-brand-500/10">
+                                                        <div className="flex items-center gap-3 mb-6">
+                                                            <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center">
+                                                                <Layers size={16} className="text-brand-400" />
+                                                            </div>
+                                                            <h4 className="text-[11px] font-black text-brand-400 uppercase tracking-[0.2em]">Mission Data Selection Required</h4>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                             {msg.potential_matches.map(table => (
-                                                                <label key={table} className="flex items-center gap-3 px-4 py-2.5 bg-black/40 border border-white/5 rounded-2xl cursor-pointer hover:border-brand-500/50 transition-all group">
+                                                                <label key={table}
+                                                                    className={cn(
+                                                                        "flex items-center gap-4 px-5 py-4 bg-slate-950/40 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-95",
+                                                                        selectedForAmbiguity.includes(table) ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50 shadow-lg shadow-brand-500/10" : "border-white/5 hover:border-white/20"
+                                                                    )}
+                                                                >
+                                                                    <div className={cn(
+                                                                        "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                                                                        selectedForAmbiguity.includes(table) ? "bg-brand-500 border-brand-500" : "border-white/10 bg-black/20"
+                                                                    )}>
+                                                                        {selectedForAmbiguity.includes(table) && <Check size={14} className="text-white" />}
+                                                                    </div>
                                                                     <input
                                                                         type="checkbox"
-                                                                        className="w-4 h-4 rounded border-white/10 text-brand-500 focus:ring-brand-500 bg-transparent"
+                                                                        className="hidden"
                                                                         checked={selectedForAmbiguity.includes(table)}
                                                                         onChange={(e) => {
-                                                                            if (e.target.checked) {
-                                                                                setSelectedForAmbiguity(prev => [...prev, table]);
-                                                                            } else {
-                                                                                setSelectedForAmbiguity(prev => prev.filter(t => t !== table));
-                                                                            }
+                                                                            if (e.target.checked) setSelectedForAmbiguity(prev => [...prev, table]);
+                                                                            else setSelectedForAmbiguity(prev => prev.filter(t => t !== table));
                                                                         }}
                                                                     />
-                                                                    <span className="text-xs font-bold text-slate-300 group-hover:text-white uppercase tracking-wider">{table}</span>
+                                                                    <span className={cn("text-xs font-bold uppercase tracking-widest", selectedForAmbiguity.includes(table) ? "text-white" : "text-slate-400")}>{table}</span>
                                                                 </label>
                                                             ))}
                                                         </div>
@@ -426,16 +444,16 @@ function HomePage() {
                                                             onClick={() => {
                                                                 if (selectedForAmbiguity.length > 0) {
                                                                     const tableString = selectedForAmbiguity.join(', ');
-                                                                    const newQuery = `Using tables [${tableString}], original request: ${messages[i - 1].content}`;
-                                                                    setQuery(newQuery);
+                                                                    const originalReq = messages[i - 1].content;
+                                                                    const refinedQuery = `In the table(s) [${tableString}], ${originalReq}`;
+                                                                    handleSend(refinedQuery);
                                                                     setSelectedForAmbiguity([]);
-                                                                    // We could auto-send here too
                                                                 }
                                                             }}
-                                                            className="flex items-center gap-2 px-6 py-2.5 bg-brand-500 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-brand-500/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                                            className="w-full mt-6 py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-brand-500/40 transition-all hover:translate-y-[-2px] active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale group"
                                                             disabled={selectedForAmbiguity.length === 0}
                                                         >
-                                                            Confirm Neural Focus <ChevronRight size={14} />
+                                                            Synchronize Target Profiles <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                                         </button>
                                                     </div>
                                                 )}
@@ -503,31 +521,33 @@ function HomePage() {
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
-                                                                            <div className="overflow-x-auto">
-                                                                                <table className="w-full text-xs text-slate-300 border-collapse">
+                                                                            <div className="p-6 overflow-x-auto">
+                                                                                <table className="w-full text-left border-separate border-spacing-y-2">
                                                                                     <thead>
-                                                                                        <tr className="bg-white/[0.02]">
-                                                                                            {Object.keys(msg.data[0]).map(k => (
-                                                                                                <th key={k} className="text-left p-4 uppercase tracking-tighter text-slate-500 font-black border-b border-white/5">{k}</th>
+                                                                                        <tr>
+                                                                                            {Object.keys(msg.data[0]).map(col => (
+                                                                                                <th key={col} className="px-5 py-3 text-[10px] font-black text-brand-400 uppercase tracking-widest bg-brand-500/5 rounded-xl border border-white/5">{col}</th>
                                                                                             ))}
                                                                                         </tr>
                                                                                     </thead>
-                                                                                    <tbody className="divide-y divide-white/5">
-                                                                                        {msg.data.slice(0, 5).map((row, ri) => (
-                                                                                            <tr key={ri} className="hover:bg-white/[0.02] transition-colors">
-                                                                                                {Object.values(row).map((val, vi) => (
-                                                                                                    <td key={vi} className="p-4 truncate max-w-[200px] border-r border-white/5 last:border-0">{String(val)}</td>
+                                                                                    <tbody>
+                                                                                        {msg.data.slice(0, 10).map((row, ridx) => (
+                                                                                            <tr key={ridx} className="group hover:scale-[1.01] transition-transform">
+                                                                                                {Object.values(row).map((val, vidx) => (
+                                                                                                    <td key={vidx} className="px-5 py-4 text-xs text-slate-300 bg-white/[0.02] group-hover:bg-white/[0.04] first:rounded-l-2xl last:rounded-r-2xl border-y border-white/5 first:border-l last:border-r font-medium">
+                                                                                                        {String(val)}
+                                                                                                    </td>
                                                                                                 ))}
                                                                                             </tr>
                                                                                         ))}
                                                                                     </tbody>
                                                                                 </table>
-                                                                                {msg.data.length > 5 && (
-                                                                                    <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
-                                                                                        Continuing Log Sequence... (+{msg.data.length - 5} items)
-                                                                                    </div>
-                                                                                )}
                                                                             </div>
+                                                                            {msg.data.length > 10 && (
+                                                                                <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
+                                                                                    Continuing Log Sequence... (+{msg.data.length - 10} items)
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     )}
                                                                 </motion.div>
@@ -571,47 +591,39 @@ function HomePage() {
                             </div>
                         </motion.div>
                     )}
-                    <div ref={chatEndRef} className="h-10" />
+                    <div ref={chatEndRef} className="h-40" />
                 </div>
 
                 {/* Input Layer */}
                 <footer className="p-10 pt-0 relative z-30">
-                    <div className="max-w-4xl mx-auto relative group">
-                        {/* Soft Ambient Glow */}
-                        <div className="absolute inset-0 bg-brand-600/20 rounded-[2.5rem] blur-3xl opacity-0 group-focus-within:opacity-40 transition-opacity" />
-
-                        <div className="relative glass-card border-brand-500/20 p-2 overflow-hidden bg-brand-950/40">
-                            <div className="absolute top-0 right-10 -translate-y-full flex items-center gap-4 mb-2">
-                                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Input Layer Alpha v2</span>
+                    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-full max-w-4xl px-10 z-50">
+                        <div className="glass-card p-2 pr-4 bg-slate-900/60 ring-1 ring-white/10 shadow-[0_0_100px_rgba(59,98,255,0.15)] flex items-center gap-4 border-2 border-brand-500/20 group focus-within:border-brand-500/50 transition-all">
+                            <div className="p-4 bg-brand-500/10 rounded-3xl text-brand-400 group-focus-within:bg-brand-500/20 group-focus-within:scale-110 transition-all">
+                                <BrainIcon size={24} />
                             </div>
-
                             <input
                                 type="text"
-                                placeholder="Ask the Neural Core anything about your data bases..."
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                                className="w-full bg-transparent py-6 pl-10 pr-24 rounded-[2rem] outline-none text-lg text-white font-medium placeholder:text-slate-600 focus:placeholder:text-slate-500 transition-all"
+                                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                placeholder="Ask the Neural Core anything about your database..."
+                                className="bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-600 text-lg py-5 flex-1 font-medium tracking-tight"
                             />
-
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleSend}
-                                disabled={!query.trim() || isProcessing}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-brand-600 hover:bg-brand-500 text-white rounded-[1.5rem] transition-all shadow-xl shadow-brand-600/30 disabled:opacity-20 flex items-center justify-center"
+                            <button
+                                onClick={() => handleSend()}
+                                disabled={isProcessing || !query.trim()}
+                                className="p-5 bg-brand-600 hover:bg-brand-500 text-white rounded-[2rem] shadow-xl shadow-brand-500/30 transition-all hover:scale-110 active:scale-90 disabled:opacity-50 disabled:grayscale hover:rotate-3"
                             >
-                                <Send size={24} />
-                            </motion.button>
+                                {isProcessing ? <RefreshCw className="animate-spin" size={20} /> : <Send size={20} />}
+                            </button>
                         </div>
-                    </div>
-                    <div className="text-center mt-6 flex justify-center gap-8 items-center">
-                        <div className="text-[9px] font-black text-slate-700 uppercase tracking-[0.4em] flex items-center gap-2">
-                            <ShieldCheck size={10} /> Certified Enterprise Grade
-                        </div>
-                        <div className="w-1 h-1 rounded-full bg-slate-800" />
-                        <div className="text-[9px] font-black text-slate-700 uppercase tracking-[0.4em]">
-                            Sync Status: <span className="text-brand-500">Live Optimization</span>
+                        <div className="flex justify-center mt-6 gap-8">
+                            <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> Neural Optimizing
+                            </span>
+                            <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> Protocol v4.2.0
+                            </span>
                         </div>
                     </div>
                 </footer>
