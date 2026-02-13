@@ -2,7 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { User, Lock, Mail, BrainCircuit, ArrowRight, Loader2, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
+import {
+    Send, Upload, Database, MessageSquare, ChevronRight, CheckCircle,
+    AlertCircle, Loader2, Table as TableIcon, Code2, Info, ChevronDown,
+    ChevronUp, BrainCircuit, ShieldCheck, LogOut, User as UserIcon,
+    Search, Plus, Zap, Layout, Cpu, RefreshCw, Clock, Download,
+    Trash2, Layers, Check, ArrowRight, Brain as BrainIcon, Terminal,
+    Sparkles, LogIn, User, Lock, Mail, UserPlus, CheckCircle2, Shield
+} from 'lucide-react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+    return twMerge(clsx(inputs));
+}
+
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -90,6 +104,7 @@ const SignupPage = () => {
                     <AnimatePresence mode="wait">
                         {error && (
                             <motion.div
+                                key="signup-error"
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
@@ -102,6 +117,7 @@ const SignupPage = () => {
 
                         {isSuccess && (
                             <motion.div
+                                key="signup-success"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="mb-8 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-4 text-emerald-400 font-bold"

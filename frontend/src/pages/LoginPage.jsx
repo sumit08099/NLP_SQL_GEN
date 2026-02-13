@@ -2,7 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { User, Lock, BrainCircuit, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import {
+    Send, Upload, Database, MessageSquare, ChevronRight, CheckCircle,
+    AlertCircle, Loader2, Table as TableIcon, Code2, Info, ChevronDown,
+    ChevronUp, BrainCircuit, ShieldCheck, LogOut, User as UserIcon,
+    Search, Plus, Zap, Layout, Cpu, RefreshCw, Clock, Download,
+    Trash2, Layers, Check, ArrowRight, Brain as BrainIcon, Terminal,
+    Sparkles, LogIn, User, Lock
+} from 'lucide-react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+    return twMerge(clsx(inputs));
+}
 
 
 
@@ -88,6 +101,7 @@ const LoginPage = () => {
                     <AnimatePresence mode="wait">
                         {error && (
                             <motion.div
+                                key="login-error"
                                 initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                                 animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
                                 exit={{ opacity: 0, height: 0, marginBottom: 0 }}

@@ -3,31 +3,21 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Send,
-    Upload,
-    Loader2,
-    Table as TableIcon,
-    ChevronDown,
-    BrainCircuit,
-    ShieldCheck,
-    LogOut,
-    User as UserIcon,
-    Plus,
-    Zap,
-    Cpu,
-    RefreshCw,
-    Clock,
-    Download,
-    Trash2,
-    Layers,
-    Check,
-    ArrowRight,
-    Brain as BrainIcon,
-    Terminal
+    Send, Upload, Database, MessageSquare, ChevronRight, CheckCircle,
+    AlertCircle, Loader2, Table as TableIcon, Code2, Info, ChevronDown,
+    ChevronUp, BrainCircuit, ShieldCheck, LogOut, User as UserIcon,
+    Search, Plus, Zap, Layout, Cpu, RefreshCw, Clock, Download,
+    Trash2, Layers, Check, ArrowRight, Brain as BrainIcon, Terminal,
+    Sparkles, LogIn, User, Lock
 } from 'lucide-react';
-
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 const API_BASE_URL = 'http://localhost:8000';
+
+function cn(...inputs) {
+    return twMerge(clsx(inputs));
+}
 
 function HomePage() {
     const [messages, setMessages] = useState([
@@ -274,6 +264,7 @@ function HomePage() {
                             <AnimatePresence>
                                 {file && (
                                     <motion.div
+                                        key="file-details"
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: "auto" }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -499,6 +490,7 @@ function HomePage() {
                                                             <AnimatePresence>
                                                                 {showTechDetails[i] && (
                                                                     <motion.div
+                                                                        key={`tech-details-${i}`}
                                                                         initial={{ opacity: 0, height: 0 }}
                                                                         animate={{ opacity: 1, height: "auto" }}
                                                                         exit={{ opacity: 0, height: 0 }}
@@ -590,6 +582,7 @@ function HomePage() {
 
                     {isProcessing && (
                         <motion.div
+                            key="loader"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="flex justify-start"
