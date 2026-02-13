@@ -26,7 +26,9 @@ import {
     Layout,
     Cpu,
     RefreshCw,
-    Clock
+    Clock,
+    Download,
+    Terminal
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -116,6 +118,28 @@ function HomePage() {
             setSchema(response.data.schema);
         } catch (error) {
             console.error('Error fetching schema:', error);
+        }
+    };
+
+    const handleDownload = async (sql, filename = "analyzed_data.csv") => {
+        try {
+            const formData = new FormData();
+            formData.append('sql', sql);
+            const config = {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob'
+            };
+            const response = await axios.post(`${API_BASE_URL}/export`, formData, config);
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Download failed:', error);
         }
     };
 
@@ -277,8 +301,30 @@ function HomePage() {
                     {/* Active Knowledge */}
                     <section>
                         <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 px-2">Neural Knowledge Map</h2>
-                        <div className="glass-card bg-black/40 p-5 font-mono text-[10px] text-slate-500 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar border-white/5 ring-1 ring-white/5">
-                            {schema || "Connect data source to initialize knowledge mapping."}
+                        <div className="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-2">
+                            {schema && schema.split('Table:').slice(1).map((tableInfo, idx) => {
+                                const tableNameMatch = tableInfo.trim().split('\n')[0];
+                                return (
+                                    <div key={idx} className="glass-card bg-black/40 p-4 border-white/5 ring-1 ring-white/5 group">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest">{tableNameMatch}</span>
+                                            <button
+                                                onClick={() => handleDownload(`SELECT * FROM "${tableNameMatch}"`, `${tableNameMatch}.csv`)}
+                                                className="p-1.5 opacity-0 group-hover:opacity-100 bg-white/5 hover:bg-brand-500/20 text-slate-400 hover:text-brand-400 rounded-md transition-all border border-white/5"
+                                            >
+                                                <Download size={10} />
+                                            </button>
+                                        </div>
+                                        <pre className="text-[9px] text-slate-500 font-mono leading-relaxed opacity-60">
+                                            {tableInfo.split('\n').slice(1).join('\n').trim()}
+                                        </pre>
+                                    </div>
+                                );
+                            }) || (
+                                    <div className="glass-card bg-black/40 p-5 font-mono text-[10px] text-slate-500 italic opacity-50 border-white/5">
+                                        Connect data source to initialize knowledge mapping.
+                                    </div>
+                                )}
                         </div>
                     </section>
                 </div>
@@ -375,17 +421,36 @@ function HomePage() {
 
                                                                         <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
                                                                             <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                                                                                <Layout size={14} /> Execution Kernel
+                                                                                <Terminal size={14} /> Execution Kernel
                                                                             </div>
-                                                                            <code className="block text-[11px] font-mono text-emerald-400/80 break-all bg-black/40 p-3 rounded-xl border border-white/5">{msg.sql}</code>
+                                                                            <div className="terminal-box">
+                                                                                <div className="terminal-header">
+                                                                                    <div className="terminal-dot bg-red-500/50" />
+                                                                                    <div className="terminal-dot bg-amber-500/50" />
+                                                                                    <div className="terminal-dot bg-emerald-500/50" />
+                                                                                </div>
+                                                                                <div className="terminal-content">
+                                                                                    <span className="text-emerald-500/50 mr-2">system@sql-master:~$</span>
+                                                                                    {msg.sql}
+                                                                                    <span className="terminal-cursor" />
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
 
                                                                     {msg.data && msg.data.length > 0 && (
                                                                         <div className="glass-card border-white/5 overflow-hidden">
                                                                             <div className="p-4 bg-white/5 border-b border-white/5">
-                                                                                <div className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                                                                    <TableIcon size={14} /> Knowledge Retrieval Snippet
+                                                                                <div className="flex items-center justify-between gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <TableIcon size={14} /> Knowledge Retrieval Snippet
+                                                                                    </div>
+                                                                                    <button
+                                                                                        onClick={() => handleDownload(msg.sql)}
+                                                                                        className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all"
+                                                                                    >
+                                                                                        <Download size={12} /> Download CSV
+                                                                                    </button>
                                                                                 </div>
                                                                             </div>
                                                                             <div className="overflow-x-auto">

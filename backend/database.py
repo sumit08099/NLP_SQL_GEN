@@ -72,6 +72,23 @@ def fetch_db_schema():
     
     return schema_text
 
+def get_table_profile(table_name):
+    """Returns the first 3 rows of a table as a dictionary string for semantic understanding."""
+    conn = get_db_connection()
+    if not conn: return ""
+    try:
+        with conn.cursor() as cur:
+            # Wrap table name in double quotes for safety
+            cur.execute(f'SELECT * FROM "{table_name}" LIMIT 3')
+            colnames = [desc[0] for desc in cur.description]
+            results = cur.fetchall()
+            sample = [dict(zip(colnames, row)) for row in results]
+            return json.dumps(sample, default=str)
+    except:
+        return ""
+    finally:
+        conn.close()
+
 def execute_query(sql_query):
     """
     Executes the generated SQL query and returns the results.

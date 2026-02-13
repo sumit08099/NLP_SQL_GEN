@@ -118,6 +118,30 @@ async def chat(query: str = Form(...), token: Annotated[str, Depends(oauth2_sche
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/export")
+async def export_data(sql: str = Form(...), token: Annotated[str, Depends(oauth2_scheme)] = None):
+    try:
+        if not auth.decode_token(token):
+             raise HTTPException(status_code=401, detail="Invalid session")
+             
+        results, columns = database.execute_query(sql)
+        if results is None:
+            raise HTTPException(status_code=400, detail=columns)
+            
+        df = pd.DataFrame(results, columns=columns)
+        stream = io.StringIO()
+        df.to_csv(stream, index=False)
+        
+        from fastapi.responses import StreamingResponse
+        return StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=query_result.csv"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

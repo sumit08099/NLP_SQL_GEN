@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from google import genai
 from langgraph.graph import StateGraph, END
 import database
+import agent_memory
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch
 
@@ -85,7 +86,6 @@ Return JSON ONLY:
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text
-        # Robust JSON extraction
         json_match = re.search(r'\{(?:[^{}]|(?R))*\}', text, re.DOTALL)
         if json_match:
             clean_json = json_match.group(0)
@@ -95,6 +95,18 @@ Return JSON ONLY:
         data = json.loads(clean_json)
         state['target_tables'] = data.get("target_tables", [])
         state['query_type'] = data.get("query_type", "single")
+        
+        # SMARTER UNDERSTANDING: Fetch data profile for target tables
+        profile_context = ""
+        for table in state['target_tables']:
+            profile = database.get_table_profile(table)
+            if profile:
+                profile_context += f"\nData Profile (Table: {table}):\n{profile}\n"
+        
+        if profile_context:
+            state['db_schema'] += f"\n\nACTUAL DATA SAMPLES BY SUPERVISOR:{profile_context}"
+            print("📊 Supervisor enhanced context with actual data samples.")
+
         state['next_agent'] = "reasoning"
     except Exception as e:
         print(f"⚠️ Supervisor Error: {e}")
@@ -122,6 +134,15 @@ def reasoning_agent(state: MultiAgentState) -> MultiAgentState:
         except Exception:
             pass
 
+    # LEARNING STEP: Check memory for similar past issues
+    relevant_memories = agent_memory.get_relevant_memory(state['user_query'])
+    memory_context = ""
+    if relevant_memories:
+        print(f"💡 Learning from {len(relevant_memories)} past experiences...")
+        memory_context = "\nPAST LESSONS (Avoid these mistakes):\n"
+        for m in relevant_memories:
+            memory_context += f"- For query '{m['query']}', '{m['failed_sql']}' failed with error '{m['error']}'. Correct fix was: '{m['corrected_sql']}'\n"
+
     prompt = f"""You are a Senior SQL Architect. 
 Your goal is to generate a correct PostgreSQL query based on the user's request.
 
@@ -131,13 +152,14 @@ DATABASE SCHEMA:
 {state['db_schema']}
 
 {f'LOCAL MODEL SUGGESTION: {local_suggestion}' if local_suggestion else ''}
+{memory_context}
 
 INSTRUCTIONS:
 1. Write a step-by-step reasoning plan.
 2. Generate the PostgreSQL query. 
 3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters.
 4. Use proper column names as shown in the schema.
-5. If a local suggestion is provided, verify it and fix any errors.
+5. If a local suggestion or past lesson is provided, incorporate those insights.
 
 Format:
 PLAN: [Describe your steps]
@@ -220,6 +242,16 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
     try:
         results, columns = database.execute_query(sql)
         if results is not None:
+            # If we succeeded after a previous error, save the correction to memory
+            if state['iteration_count'] > 0 and state.get('error_message'):
+                 print("💾 Recording successful correction into agent memory...")
+                 agent_memory.add_correction(
+                     state['user_query'],
+                     "PREVIOUS_FAILED_SQL", # We could track the exact failing one if we stored it in state
+                     state['error_message'],
+                     sql
+                 )
+            
             state['query_results'] = results
             state['query_columns'] = columns
             state['error_message'] = ""
