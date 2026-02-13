@@ -28,6 +28,11 @@ import {
     RefreshCw,
     Clock,
     Download,
+    Trash2,
+    Layers,
+    Check,
+    ArrowRight,
+    Brain as BrainIcon,
     Terminal
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -218,7 +223,6 @@ function HomePage() {
                 </div>
 
                 <div className="flex-1 space-y-10 overflow-y-auto pr-2 custom-scrollbar">
-
                     {/* User Section */}
                     <section className="space-y-4">
                         <div className="p-5 glass-card border-brand-500/10 bg-brand-500/[0.02]">
@@ -344,7 +348,7 @@ function HomePage() {
             {/* Main Workspace */}
             <main className="flex-1 flex flex-col relative bg-slate-950/20 backdrop-blur-sm z-20">
                 {/* Header bar */}
-                <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-slate-950/40 backdrop-blur-3xl active:z-50">
+                <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-slate-950/40 backdrop-blur-3xl z-50">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-3 px-4 py-2 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
                             <ShieldCheck size={16} className="text-emerald-500" />
@@ -383,178 +387,212 @@ function HomePage() {
                                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div className={`max-w-3xl relative ${msg.role === 'user' ? 'w-full flex justify-end' : 'w-full'}`}>
-                                    {/* User Prompt */}
+                                    {/* User Avatar & Prompt */}
                                     {msg.role === 'user' && (
-                                        <div className="glass-card bg-brand-600/10 border-brand-500/30 p-6 rounded-[2rem] rounded-tr-none shadow-2xl shadow-brand-500/5 min-w-[300px]">
-                                            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 p-3 glass shadow-xl rounded-2xl bg-slate-900 border border-brand-500/30">
-                                                <UserIcon size={20} className="text-brand-400" />
+                                        <div className="flex items-start gap-6 flex-row-reverse w-full">
+                                            <div className="flex flex-col items-center gap-2 shrink-0">
+                                                <motion.div
+                                                    whileHover={{ scale: 1.1, rotate: -5 }}
+                                                    className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-red-600 flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.3)] ring-2 ring-white/30 relative overflow-hidden group"
+                                                >
+                                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <UserIcon size={30} className="text-white relative z-10" />
+                                                    <div className="absolute bottom-0 w-full h-1/3 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+                                                        <span className="text-[8px] font-black text-white/80 uppercase truncate px-1">{username.substring(0, 8)}</span>
+                                                    </div>
+                                                </motion.div>
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                                             </div>
-                                            <p className="text-base text-white/90 leading-relaxed font-medium">{msg.content}</p>
+                                            <motion.div
+                                                initial={{ x: 20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                className="glass-card bg-brand-600/10 border-brand-500/30 p-7 rounded-[2.5rem] rounded-tr-none shadow-2xl shadow-brand-500/5 max-w-2xl relative"
+                                            >
+                                                <div className="absolute -right-2 top-6 w-4 h-4 bg-brand-600/20 border-r border-t border-brand-500/30 rotate-45 backdrop-blur-3xl" />
+                                                <p className="text-base text-white/90 leading-relaxed font-medium">{msg.content}</p>
+                                            </motion.div>
                                         </div>
                                     )}
 
-                                    {/* AI Response Prompt */}
+                                    {/* AI Avatar & Response */}
                                     {msg.role === 'assistant' && (
-                                        <div className="w-full space-y-6">
-                                            <div className="glass-card p-10 rounded-[2.5rem] rounded-tl-none ring-1 ring-white/5 shadow-2xl shadow-black/60 bg-slate-900/50">
-                                                <div className="absolute top-0 left-0 -translate-y-1/2 -translate-x-1/2 p-3 glass shadow-xl rounded-2xl bg-slate-900 border border-white/10">
-                                                    <BrainCircuit size={20} className="text-brand-400" />
-                                                </div>
-                                                <div className="text-base md:text-lg text-slate-200 leading-relaxed font-medium whitespace-pre-wrap">
-                                                    {msg.content}
-                                                </div>
-
-                                                {/* AMBIGUITY UI: Selection of tables */}
-                                                {msg.is_ambiguous && msg.potential_matches && (
-                                                    <div className="mt-8 p-8 glass-card border-brand-500/30 bg-brand-500/[0.05] shadow-inner shadow-brand-500/10">
-                                                        <div className="flex items-center gap-3 mb-6">
-                                                            <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center">
-                                                                <Layers size={16} className="text-brand-400" />
-                                                            </div>
-                                                            <h4 className="text-[11px] font-black text-brand-400 uppercase tracking-[0.2em]">Mission Data Selection Required</h4>
-                                                        </div>
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            {msg.potential_matches.map(table => (
-                                                                <label key={table}
-                                                                    className={cn(
-                                                                        "flex items-center gap-4 px-5 py-4 bg-slate-950/40 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-95",
-                                                                        selectedForAmbiguity.includes(table) ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50 shadow-lg shadow-brand-500/10" : "border-white/5 hover:border-white/20"
-                                                                    )}
-                                                                >
-                                                                    <div className={cn(
-                                                                        "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
-                                                                        selectedForAmbiguity.includes(table) ? "bg-brand-500 border-brand-500" : "border-white/10 bg-black/20"
-                                                                    )}>
-                                                                        {selectedForAmbiguity.includes(table) && <Check size={14} className="text-white" />}
-                                                                    </div>
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        className="hidden"
-                                                                        checked={selectedForAmbiguity.includes(table)}
-                                                                        onChange={(e) => {
-                                                                            if (e.target.checked) setSelectedForAmbiguity(prev => [...prev, table]);
-                                                                            else setSelectedForAmbiguity(prev => prev.filter(t => t !== table));
-                                                                        }}
-                                                                    />
-                                                                    <span className={cn("text-xs font-bold uppercase tracking-widest", selectedForAmbiguity.includes(table) ? "text-white" : "text-slate-400")}>{table}</span>
-                                                                </label>
-                                                            ))}
-                                                        </div>
-                                                        <button
-                                                            onClick={() => {
-                                                                if (selectedForAmbiguity.length > 0) {
-                                                                    const tableString = selectedForAmbiguity.join(', ');
-                                                                    const originalReq = messages[i - 1].content;
-                                                                    const refinedQuery = `In the table(s) [${tableString}], ${originalReq}`;
-                                                                    handleSend(refinedQuery);
-                                                                    setSelectedForAmbiguity([]);
-                                                                }
-                                                            }}
-                                                            className="w-full mt-6 py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-brand-500/40 transition-all hover:translate-y-[-2px] active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:grayscale group"
-                                                            disabled={selectedForAmbiguity.length === 0}
-                                                        >
-                                                            Synchronize Target Profiles <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                                                        </button>
+                                        <div className="flex items-start gap-6 w-full">
+                                            <div className="flex flex-col items-center gap-2 shrink-0">
+                                                <motion.div
+                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    whileHover={{ rotate: 360 }}
+                                                    transition={{ rotate: { duration: 20, repeat: Infinity, ease: "linear" } }}
+                                                    className="w-18 h-18 rounded-[2rem] bg-gradient-to-tr from-brand-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-[0_0_50px_rgba(59,130,246,0.4)] ring-4 ring-brand-500/30 shrink-0 relative overflow-hidden group"
+                                                >
+                                                    <div className="absolute inset-0 bg-brand-400/20 animate-pulse" />
+                                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <BrainCircuit size={36} className="text-white relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                                                </motion.div>
+                                                <span className="text-[9px] font-black text-brand-400 uppercase tracking-widest">Neural Core</span>
+                                            </div>
+                                            <div className="w-full space-y-6">
+                                                <motion.div
+                                                    initial={{ x: -20, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    className="glass-card p-10 rounded-[2.5rem] rounded-tl-none ring-1 ring-white/5 shadow-2xl shadow-black/60 bg-slate-900/50 relative overflow-hidden"
+                                                >
+                                                    <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-brand-500 to-indigo-600" />
+                                                    <div className="text-base md:text-lg text-slate-200 leading-relaxed font-medium whitespace-pre-wrap">
+                                                        {msg.content}
                                                     </div>
-                                                )}
 
-                                                {/* Chain Analysis Toggle */}
-                                                {(msg.sql || msg.plan) && (
-                                                    <div className="mt-10 pt-8 border-t border-white/5">
-                                                        <button
-                                                            onClick={() => toggleTechDetails(i)}
-                                                            className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hover:text-brand-400 transition-all group"
-                                                        >
-                                                            <div className={cn("p-1 rounded-md bg-white/5 group-hover:bg-brand-500/10", showTechDetails[i] && "rotate-180")}>
-                                                                <ChevronDown size={14} className="transition-transform" />
+                                                    {/* AMBIGUITY UI */}
+                                                    {msg.is_ambiguous && msg.potential_matches && (
+                                                        <div className="mt-8 p-8 glass-card border-brand-500/30 bg-brand-500/[0.05] shadow-inner shadow-brand-500/10">
+                                                            <div className="flex items-center gap-3 mb-6">
+                                                                <div className="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center">
+                                                                    <Layers size={16} className="text-brand-400" />
+                                                                </div>
+                                                                <h4 className="text-[11px] font-black text-brand-400 uppercase tracking-[0.2em]">Mission Data Selection Required</h4>
                                                             </div>
-                                                            Advanced Insight Analysis
-                                                        </button>
-
-                                                        <AnimatePresence>
-                                                            {showTechDetails[i] && (
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, height: 0 }}
-                                                                    animate={{ opacity: 1, height: "auto" }}
-                                                                    exit={{ opacity: 0, height: 0 }}
-                                                                    className="mt-8 space-y-6 overflow-hidden"
-                                                                >
-                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                        <div className="p-6 glass-card border-brand-500/20 bg-brand-500/[0.03]">
-                                                                            <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-brand-400 uppercase tracking-widest">
-                                                                                <Cpu size={14} /> Neural Logic Plan
-                                                                            </div>
-                                                                            <p className="text-xs text-slate-400 leading-relaxed italic">{msg.plan}</p>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                {msg.potential_matches.map(table => (
+                                                                    <label key={table}
+                                                                        className={cn(
+                                                                            "flex items-center gap-4 px-5 py-4 bg-slate-950/40 border rounded-2xl cursor-pointer transition-all hover:scale-[1.02] active:scale-95",
+                                                                            selectedForAmbiguity.includes(table) ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50 shadow-lg shadow-brand-500/10" : "border-white/5 hover:border-white/20"
+                                                                        )}
+                                                                    >
+                                                                        <div className={cn(
+                                                                            "w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all",
+                                                                            selectedForAmbiguity.includes(table) ? "bg-brand-500 border-brand-500" : "border-white/10 bg-black/20"
+                                                                        )}>
+                                                                            {selectedForAmbiguity.includes(table) && <Check size={14} className="text-white" />}
                                                                         </div>
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className="hidden"
+                                                                            checked={selectedForAmbiguity.includes(table)}
+                                                                            onChange={(e) => {
+                                                                                if (e.target.checked) setSelectedForAmbiguity(prev => [...prev, table]);
+                                                                                else setSelectedForAmbiguity(prev => prev.filter(t => t !== table));
+                                                                            }}
+                                                                        />
+                                                                        <span className={cn("text-xs font-bold uppercase tracking-widest", selectedForAmbiguity.includes(table) ? "text-white" : "text-slate-400")}>{table}</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (selectedForAmbiguity.length > 0) {
+                                                                        const tableString = selectedForAmbiguity.join(', ');
+                                                                        const originalReq = messages[i - 1].content;
+                                                                        const refinedQuery = `In the table(s) [${tableString}], ${originalReq}`;
+                                                                        handleSend(refinedQuery);
+                                                                        setSelectedForAmbiguity([]);
+                                                                    }
+                                                                }}
+                                                                className="w-full mt-6 py-4 bg-brand-500 hover:bg-brand-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-brand-500/40 transition-all flex items-center justify-center gap-3 disabled:opacity-50 group"
+                                                                disabled={selectedForAmbiguity.length === 0}
+                                                            >
+                                                                Synchronize Target Profiles <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                                            </button>
+                                                        </div>
+                                                    )}
 
-                                                                        <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
-                                                                            <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                                                                                <Terminal size={14} /> Execution Kernel
-                                                                            </div>
-                                                                            <div className="terminal-box">
-                                                                                <div className="terminal-header">
-                                                                                    <div className="terminal-dot bg-red-500/50" />
-                                                                                    <div className="terminal-dot bg-amber-500/50" />
-                                                                                    <div className="terminal-dot bg-emerald-500/50" />
-                                                                                </div>
-                                                                                <div className="terminal-content">
-                                                                                    <span className="text-emerald-500/50 mr-2">system@sql-master:~$</span>
-                                                                                    {msg.sql}
-                                                                                    <span className="terminal-cursor" />
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
+                                                    {/* Analysis Block */}
+                                                    {(msg.sql || msg.plan) && (
+                                                        <div className="mt-10 pt-8 border-t border-white/5">
+                                                            <button
+                                                                onClick={() => toggleTechDetails(i)}
+                                                                className="flex items-center gap-3 text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hover:text-brand-400 transition-all group"
+                                                            >
+                                                                <div className={cn("p-1 rounded-md bg-white/5 group-hover:bg-brand-500/10", showTechDetails[i] && "rotate-180")}>
+                                                                    <ChevronDown size={14} className="transition-transform" />
+                                                                </div>
+                                                                Advanced Insight Analysis
+                                                            </button>
 
-                                                                    {msg.data && msg.data.length > 0 && (
-                                                                        <div className="glass-card border-white/5 overflow-hidden">
-                                                                            <div className="p-4 bg-white/5 border-b border-white/5">
-                                                                                <div className="flex items-center justify-between gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                                                                    <div className="flex items-center gap-2">
-                                                                                        <TableIcon size={14} /> Knowledge Retrieval Snippet
+                                                            <AnimatePresence>
+                                                                {showTechDetails[i] && (
+                                                                    <motion.div
+                                                                        initial={{ opacity: 0, height: 0 }}
+                                                                        animate={{ opacity: 1, height: "auto" }}
+                                                                        exit={{ opacity: 0, height: 0 }}
+                                                                        className="mt-8 space-y-6 overflow-hidden"
+                                                                    >
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                            <div className="p-6 glass-card border-brand-500/20 bg-brand-500/[0.03]">
+                                                                                <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-brand-400 uppercase tracking-widest">
+                                                                                    <Cpu size={14} /> Neural Logic Plan
+                                                                                </div>
+                                                                                <p className="text-xs text-slate-400 leading-relaxed italic">{msg.plan}</p>
+                                                                            </div>
+                                                                            <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
+                                                                                <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+                                                                                    <Terminal size={14} /> Execution Kernel
+                                                                                </div>
+                                                                                <div className="terminal-box">
+                                                                                    <div className="terminal-header">
+                                                                                        <div className="terminal-dot bg-red-500/50" />
+                                                                                        <div className="terminal-dot bg-amber-500/50" />
+                                                                                        <div className="terminal-dot bg-emerald-500/50" />
                                                                                     </div>
-                                                                                    <button
-                                                                                        onClick={() => handleDownload(msg.sql)}
-                                                                                        className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all"
-                                                                                    >
-                                                                                        <Download size={12} /> Download CSV
-                                                                                    </button>
+                                                                                    <div className="terminal-content">
+                                                                                        <span className="text-emerald-500/50 mr-2">system@sql-master:~$</span>
+                                                                                        {msg.sql}
+                                                                                        <span className="terminal-cursor" />
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
-                                                                            <div className="p-6 overflow-x-auto">
-                                                                                <table className="w-full text-left border-separate border-spacing-y-2">
-                                                                                    <thead>
-                                                                                        <tr>
-                                                                                            {Object.keys(msg.data[0]).map(col => (
-                                                                                                <th key={col} className="px-5 py-3 text-[10px] font-black text-brand-400 uppercase tracking-widest bg-brand-500/5 rounded-xl border border-white/5">{col}</th>
-                                                                                            ))}
-                                                                                        </tr>
-                                                                                    </thead>
-                                                                                    <tbody>
-                                                                                        {msg.data.slice(0, 10).map((row, ridx) => (
-                                                                                            <tr key={ridx} className="group hover:scale-[1.01] transition-transform">
-                                                                                                {Object.values(row).map((val, vidx) => (
-                                                                                                    <td key={vidx} className="px-5 py-4 text-xs text-slate-300 bg-white/[0.02] group-hover:bg-white/[0.04] first:rounded-l-2xl last:rounded-r-2xl border-y border-white/5 first:border-l last:border-r font-medium">
-                                                                                                        {String(val)}
-                                                                                                    </td>
+                                                                        </div>
+
+                                                                        {msg.data && msg.data.length > 0 && (
+                                                                            <div className="glass-card border-white/5 overflow-hidden">
+                                                                                <div className="p-4 bg-white/5 border-b border-white/5">
+                                                                                    <div className="flex items-center justify-between gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <TableIcon size={14} /> Knowledge Retrieval Snippet
+                                                                                        </div>
+                                                                                        <button
+                                                                                            onClick={() => handleDownload(msg.sql)}
+                                                                                            className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all"
+                                                                                        >
+                                                                                            <Download size={12} /> Download CSV
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div className="p-6 overflow-x-auto">
+                                                                                    <table className="w-full text-left border-separate border-spacing-y-2">
+                                                                                        <thead>
+                                                                                            <tr>
+                                                                                                {Object.keys(msg.data[0]).map(col => (
+                                                                                                    <th key={col} className="px-5 py-3 text-[10px] font-black text-brand-400 uppercase tracking-widest bg-brand-500/5 rounded-xl border border-white/5">{col}</th>
                                                                                                 ))}
                                                                                             </tr>
-                                                                                        ))}
-                                                                                    </tbody>
-                                                                                </table>
-                                                                            </div>
-                                                                            {msg.data.length > 10 && (
-                                                                                <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
-                                                                                    Continuing Log Sequence... (+{msg.data.length - 10} items)
+                                                                                        </thead>
+                                                                                        <tbody>
+                                                                                            {msg.data.slice(0, 10).map((row, ridx) => (
+                                                                                                <tr key={ridx} className="group hover:scale-[1.01] transition-transform">
+                                                                                                    {Object.values(row).map((val, vidx) => (
+                                                                                                        <td key={vidx} className="px-5 py-4 text-xs text-slate-300 bg-white/[0.02] group-hover:bg-white/[0.04] first:rounded-l-2xl last:rounded-r-2xl border-y border-white/5 first:border-l last:border-r font-medium">
+                                                                                                            {String(val)}
+                                                                                                        </td>
+                                                                                                    ))}
+                                                                                                </tr>
+                                                                                            ))}
+                                                                                        </tbody>
+                                                                                    </table>
                                                                                 </div>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-                                                                </motion.div>
-                                                            )}
-                                                        </AnimatePresence>
-                                                    </div>
-                                                )}
+                                                                                {msg.data.length > 10 && (
+                                                                                    <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
+                                                                                        Continuing Log Sequence... (+{msg.data.length - 10} items)
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
+                                                    )}
+                                                </motion.div>
                                             </div>
                                         </div>
                                     )}

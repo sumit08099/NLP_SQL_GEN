@@ -69,6 +69,13 @@ class MultiAgentState(TypedDict):
 def supervisor_agent(state: MultiAgentState) -> MultiAgentState:
     print("🎯 SUPERVISOR: Analyzing query context...")
     
+    # Short-circuit if no knowledge base exists
+    if "No user-uploaded tables found" in state['db_schema']:
+        state['final_answer'] = "Protocol Interrupted: No active knowledge base detected. Please upload an Excel or CSV file in the 'Data Ingestion' zone so I can initialize your neural data layer."
+        state['next_agent'] = END
+        state['is_ambiguous'] = False
+        return state
+
     prompt = f"""You are a SQL Assistant Supervisor.
 Analyze this request: "{state['user_query']}"
 SCHEMA:
@@ -79,12 +86,12 @@ IMPORTANT:
 - If the user asks about "data" or "tables", they almost certainly mean their CSV files.
 
 Return JSON ONLY:
-{
+{{
     "target_tables": ["table1"],
     "query_type": "single|join|aggregation",
     "is_ambiguous": true/false,
     "reasoning": "Brief explanation"
-}
+}}
 
 STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multiple tables exist in the schema, you MUST set "is_ambiguous": true and leave "target_tables" empty. DO NOT GUESS. Only set "target_tables" if you are 95% sure which one the user means based on keywords.
 """
