@@ -117,12 +117,25 @@ STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multi
         # Filter out system tables if possible for potential_matches
         all_user_tables = [t for t in all_user_tables if t not in ['alembic_version', 'dynamic_tables', 'users', 'products', 'orders']]
 
-        # STRENGTHEN AMBIGUITY: If generic query and > 1 table, force ambiguity
+        # 1. AUTO-ASSIGN IF ONLY ONE TABLE: If user didn't specify but there's only one choice, use it.
+        if not state.get('target_tables') and len(all_user_tables) == 1:
+             state['target_tables'] = all_user_tables
+             print(f"🎯 Defaulting to only available user table: {all_user_tables[0]}")
+
+        # 2. STRENGTHEN AMBIGUITY: If generic query and > 1 table, force ambiguity
         if (not state.get('target_tables') or state.get('is_ambiguous')) and len(all_user_tables) > 1:
             state['is_ambiguous'] = True
             state['potential_matches'] = all_user_tables
             state['next_agent'] = END
             return state
+
+        # 3. FINAL VALIDATION: If we still have no tables after everything, and user mentioned one, 
+        # try to find it in the query text as a fallback.
+        if not state.get('target_tables'):
+            for t in all_user_tables:
+                if t.lower() in state['user_query'].lower():
+                    state['target_tables'] = [t]
+                    break
 
         state['potential_matches'] = []
         
@@ -267,8 +280,13 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
     print(f"⚡ EXECUTOR: Running SQL [Attempt {state['iteration_count']+1}]...")
     
     sql = state.get('generated_sql', "").strip()
-    if not sql:
-        state['error_message'] = "No SQL was generated."
+    
+    # SECURITY: Check if SQL is actually executable (not just comments or notes)
+    is_pure_comment = sql.startswith("--") and "\n" not in sql.strip()
+    is_note = "Waiting for supervisor" in sql or "specify the table" in sql
+    
+    if not sql or is_pure_comment or is_note:
+        state['error_message'] = "I identified the task, but I'm not sure which table to use. Please specify the table name."
         state['next_agent'] = "formatter"
         return state
 
