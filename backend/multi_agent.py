@@ -110,12 +110,15 @@ STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multi
         state['query_type'] = data.get("query_type", "single")
         state['is_ambiguous'] = data.get("is_ambiguous", False)
         
-        # Get list of all user tables from schema string
-        # format is "Table: table_name"
-        all_user_tables = re.findall(r"Table: (\w+)", state['db_schema'])
+        # INCREASED ROBUSTNESS: Get list of all user tables from schema string
+        # More inclusive regex for table detection
+        all_user_tables = re.findall(r"Table:\s*(\w+)", state['db_schema'], re.IGNORECASE)
+        print(f"📊 Supervisor detected tables in schema: {all_user_tables}")
         
         # Filter out system tables if possible for potential_matches
-        all_user_tables = [t for t in all_user_tables if t not in ['alembic_version', 'dynamic_tables', 'users', 'products', 'orders']]
+        system_tables = ['alembic_version', 'dynamic_tables', 'users', 'products', 'orders']
+        all_user_tables = [t for t in all_user_tables if t.lower() not in system_tables]
+        print(f"📊 User-specific tables: {all_user_tables}")
 
         # 1. AUTO-ASSIGN IF ONLY ONE TABLE: If user didn't specify but there's only one choice, use it.
         if not state.get('target_tables') and len(all_user_tables) == 1:

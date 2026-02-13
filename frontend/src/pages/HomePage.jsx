@@ -1,29 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send,
     Upload,
-    Database,
-    MessageSquare,
-    ChevronRight,
-    CheckCircle,
-    AlertCircle,
     Loader2,
     Table as TableIcon,
-    Code2,
-    Info,
     ChevronDown,
-    ChevronUp,
     BrainCircuit,
     ShieldCheck,
     LogOut,
     User as UserIcon,
-    Search,
     Plus,
     Zap,
-    Layout,
     Cpu,
     RefreshCw,
     Clock,
@@ -35,14 +25,9 @@ import {
     Brain as BrainIcon,
     Terminal
 } from 'lucide-react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+
 
 const API_BASE_URL = 'http://localhost:8000';
-
-function cn(...inputs) {
-    return twMerge(clsx(inputs));
-}
 
 function HomePage() {
     const [messages, setMessages] = useState([
@@ -70,9 +55,20 @@ function HomePage() {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const fetchSchema = useCallback(async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/schema`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setSchema(response.data.schema);
+        } catch (error) {
+            console.error('Error fetching schema:', error);
+        }
+    }, [token]);
+
     useEffect(() => {
         fetchSchema();
-    }, []);
+    }, [fetchSchema]);
 
     useEffect(() => {
         scrollToBottom();
@@ -120,16 +116,7 @@ function HomePage() {
         }
     };
 
-    const fetchSchema = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/schema`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setSchema(response.data.schema);
-        } catch (error) {
-            console.error('Error fetching schema:', error);
-        }
-    };
+
 
     const handleDownload = async (sql, filename = "analyzed_data.csv") => {
         try {

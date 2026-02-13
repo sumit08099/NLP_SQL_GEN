@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { UserPlus, User, Lock, Mail, BrainCircuit, ArrowRight, Loader2, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
+import { User, Lock, Mail, BrainCircuit, ArrowRight, Loader2, AlertCircle, CheckCircle2, Shield } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000';
 

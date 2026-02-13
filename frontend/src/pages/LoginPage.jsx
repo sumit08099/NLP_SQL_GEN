@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { LogIn, User, Lock, BrainCircuit, ArrowRight, Loader2, AlertCircle, Sparkles } from 'lucide-react';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { User, Lock, BrainCircuit, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 
-function cn(...inputs) {
-    return twMerge(clsx(inputs));
-}
+
+
 
 const API_BASE_URL = 'http://localhost:8000';
 
