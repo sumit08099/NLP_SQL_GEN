@@ -119,7 +119,7 @@ Return JSON ONLY:
 
         if state['is_ambiguous'] and len(user_tables) > 1:
             state['potential_matches'] = user_tables
-            state['next_agent'] = END
+            state['next_agent'] = "END"
             return state
 
         # ENHANCE SCHEMA: Strip irrelevant tables from schema to reduce noise (Semantic Schema Search)
@@ -277,7 +277,9 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
     print("📝 FORMATTER: Analytical Storytelling...")
     
     if state['error_message'] and not state['query_results']:
-        state['final_answer'] = f"System Error: {state['error_message']}"
+        reasoning_intro = f"Reasoning: {state.get('query_plan', 'Analyzing target tables...')}\n\n"
+        state['final_answer'] = f"{reasoning_intro}Database Error: {state['error_message']}"
+        state['next_agent'] = "END"
         return state
         
     # Aggregate context from all result sets
@@ -290,26 +292,27 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
 
     prompt = f"""You are a Pro Data Analyst. 
 The user asked: {state['user_query']}
+Logical Plan followed: {state['query_plan']}
 Available Datasets:
 {full_context}
 
 TASK:
-1. ANALYTICAL STORYTELLING: Don't just list data. Identify patterns, outliers, or significant totals across ALL provided datasets.
-2. ANSWER THE "WHY": If the data shows something interesting, point it out.
+1. START WITH REASONING: Briefly explain what you looked for and why (based on the plan).
+2. ANALYTICAL STORYTELLING: Identify patterns, outliers, or significant totals across ALL provided datasets.
 3. STRUCTURE: Use a clean, point-wise breakdown. 
 4. NO BOLD: Strict rule - never use double asterisks (**).
 
 Example Output Style:
-Overview: Found 4 major revenue clusters across both tables...
-- In Dataset 1 (Bookings), we see...
-- Dataset 2 (History) confirms that...
-- Observation: There is a correlation between X and Y..."""
+Reasoning: I accessed both the history and booking tables to correlate...
+Insights:
+- Found 4 major clusters...
+- In Dataset 1 (Bookings), we see..."""
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         state['final_answer'] = response.text
     except Exception as e:
-        state['final_answer'] = f"Processed {len(state['query_results'])} records. Format failed."
+        state['final_answer'] = f"Reasoning: {state['query_plan']}\n\nNote: Data formatting failed but datasets are available below."
     
     state['next_agent'] = "END"
     return state

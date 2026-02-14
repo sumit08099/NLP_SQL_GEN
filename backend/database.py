@@ -159,10 +159,12 @@ def execute_query(sql_query, user_id=None):
     try:
         all_results = []
         with conn.cursor() as cur:
-            cur.execute(sql_query)
+            # 1. Clean and split the query by semicolon (basic splitting)
+            # This handles most AI-generated multi-statement queries
+            statements = [s.strip() for s in sql_query.split(';') if s.strip()]
             
-            # Use nextset() to handle multiple result sets (e.g. multi-statement queries)
-            while True:
+            for statement in statements:
+                cur.execute(statement)
                 if cur.description:
                     colnames = [desc[0] for desc in cur.description]
                     rows = cur.fetchall()
@@ -170,16 +172,9 @@ def execute_query(sql_query, user_id=None):
                         "columns": colnames,
                         "rows": rows
                     })
-                
-                try:
-                    if not cur.nextset():
-                        break
-                except psycopg2.ProgrammingError:
-                    # Some statements (like DDL/DML) don't return sets
-                    break
             
             if not all_results:
-                return [], [] # No rows returned but successful
+                return [], "" # No rows returned but successful
                 
             return all_results, ""
     except Exception as e:

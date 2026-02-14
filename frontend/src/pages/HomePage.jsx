@@ -115,26 +115,23 @@ function HomePage() {
 
 
 
-    const handleDownload = async (sql, filename = "analyzed_data.csv") => {
-        try {
-            const formData = new FormData();
-            formData.append('sql', sql);
-            const config = {
-                headers: { Authorization: `Bearer ${token}` },
-                responseType: 'blob'
-            };
-            const response = await axios.post(`${API_BASE_URL}/export`, formData, config);
+    const handleDownload = (data, filename = "analyzed_data.csv") => {
+        if (!data || data.length === 0) return;
 
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        } catch (error) {
-            console.error('Download failed:', error);
-        }
+        const headers = Object.keys(data[0]).join(',');
+        const rows = data.map(row =>
+            Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+        ).join('\n');
+
+        const csvContent = `${headers}\n${rows}`;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleSend = async (forcedQuery = null) => {
@@ -541,10 +538,10 @@ function HomePage() {
                                                                                                     {msg.data.length > 1 ? `Knowledge Retrieval Block ${dIdx + 1}` : "Knowledge Retrieval Snippet"}
                                                                                                 </div>
                                                                                                 <button
-                                                                                                    onClick={() => handleDownload(msg.sql)}
+                                                                                                    onClick={() => handleDownload(dataset, `knowledge_block_${dIdx + 1}.csv`)}
                                                                                                     className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all font-bold"
                                                                                                 >
-                                                                                                    <Download size={12} /> {msg.data.length > 1 ? `Export All Data` : "Download CSV"}
+                                                                                                    <Download size={12} /> {msg.data.length > 1 ? `Export Dataset ${dIdx + 1}` : "Download CSV"}
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
