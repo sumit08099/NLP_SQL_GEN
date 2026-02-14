@@ -44,7 +44,9 @@ const LandingPage = () => {
             {/* Navigation */}
             <nav className="relative z-50 flex items-center justify-between px-10 py-8 max-w-7xl mx-auto">
                 <div className="flex items-center gap-3">
-                    <img src={logo} alt="Logo" className="w-10 h-10 object-contain" />
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shadow-lg shadow-brand-500/20">
+                        <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                    </div>
                     <span className="text-xl font-black tracking-tighter">SQL MASTER</span>
                 </div>
                 <div className="flex items-center gap-6">

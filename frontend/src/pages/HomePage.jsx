@@ -188,8 +188,8 @@ function HomePage() {
                 className="w-80 bg-slate-950/60 border-r border-white/5 flex flex-col p-6 backdrop-blur-3xl z-30"
             >
                 <div className="flex items-center gap-4 mb-10 px-2 leading-tight">
-                    <div className="p-3 glass-card shadow-lg shadow-brand-500/10">
-                        <img src={logo} alt="Logo" className="w-6 h-6 object-contain" />
+                    <div className="p-3 glass-card shadow-lg shadow-brand-500/10 rounded-full overflow-hidden">
+                        <img src={logo} alt="Logo" className="w-6 h-6 object-cover rounded-full" />
                     </div>
                     <div>
                         <h1 className="text-xl font-black tracking-tighter text-white">SQL MASTER</h1>
@@ -400,13 +400,12 @@ function HomePage() {
                                                 <motion.div
                                                     initial={{ scale: 0.8, opacity: 0 }}
                                                     animate={{ scale: 1, opacity: 1 }}
-                                                    whileHover={{ rotate: 360 }}
-                                                    transition={{ rotate: { duration: 20, repeat: Infinity, ease: "linear" } }}
-                                                    className="w-18 h-18 rounded-[2rem] bg-gradient-to-tr from-brand-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-[0_0_50px_rgba(59,130,246,0.4)] ring-4 ring-brand-500/30 shrink-0 relative overflow-hidden group"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    className="w-18 h-18 rounded-full bg-gradient-to-tr from-brand-600 via-indigo-600 to-violet-700 flex items-center justify-center shadow-[0_0_50px_rgba(59,130,246,0.4)] ring-4 ring-brand-500/30 shrink-0 relative overflow-hidden group"
                                                 >
                                                     <div className="absolute inset-0 bg-brand-400/20 animate-pulse" />
                                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <img src={logo} alt="AI Core" className="w-9 h-9 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                                                    <img src={logo} alt="AI Core" className="w-12 h-12 rounded-full object-cover relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                                                 </motion.div>
                                                 <span className="text-[9px] font-black text-brand-400 uppercase tracking-widest">Neural Core</span>
                                             </div>

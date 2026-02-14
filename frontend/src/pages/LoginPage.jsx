@@ -82,9 +82,9 @@ const LoginPage = () => {
                     <motion.div
                         whileHover={{ scale: 1.05, rotate: 5 }}
                         whileTap={{ scale: 0.95 }}
-                        className="p-5 glass-card mb-6 shadow-2xl shadow-brand-500/20 group"
+                        className="p-1 glass-card mb-6 shadow-2xl shadow-brand-500/20 group rounded-full overflow-hidden"
                     >
-                        <img src={logo} alt="Logo" className="w-12 h-12 object-contain group-hover:scale-110 transition-transform" />
+                        <img src={logo} alt="Logo" className="w-16 h-16 rounded-full object-cover group-hover:scale-110 transition-transform" />
                     </motion.div>
                     <h1 className="text-5xl font-black text-white tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
                         SQL MASTER
