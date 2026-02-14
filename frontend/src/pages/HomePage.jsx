@@ -531,47 +531,58 @@ function HomePage() {
                                                                         </div>
 
                                                                         {msg.data && msg.data.length > 0 && (
-                                                                            <div className="glass-card border-white/5 overflow-hidden">
-                                                                                <div className="p-4 bg-white/5 border-b border-white/5">
-                                                                                    <div className="flex items-center justify-between gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                                                                                        <div className="flex items-center gap-2">
-                                                                                            <TableIcon size={14} /> Knowledge Retrieval Snippet
+                                                                            <div className="space-y-6">
+                                                                                {(Array.isArray(msg.data[0]) ? msg.data : [msg.data]).map((dataset, dIdx) => (
+                                                                                    <div key={dIdx} className="glass-card border-white/5 overflow-hidden">
+                                                                                        <div className="p-4 bg-white/5 border-b border-white/5">
+                                                                                            <div className="flex items-center justify-between gap-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                                                                                                <div className="flex items-center gap-2">
+                                                                                                    <TableIcon size={14} />
+                                                                                                    {msg.data.length > 1 ? `Knowledge Retrieval Block ${dIdx + 1}` : "Knowledge Retrieval Snippet"}
+                                                                                                </div>
+                                                                                                <button
+                                                                                                    onClick={() => handleDownload(msg.sql)}
+                                                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all font-bold"
+                                                                                                >
+                                                                                                    <Download size={12} /> {msg.data.length > 1 ? `Export All Data` : "Download CSV"}
+                                                                                                </button>
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <button
-                                                                                            onClick={() => handleDownload(msg.sql)}
-                                                                                            className="flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 rounded-lg border border-brand-500/20 transition-all"
-                                                                                        >
-                                                                                            <Download size={12} /> Download CSV
-                                                                                        </button>
+                                                                                        <div className="p-6 overflow-x-auto">
+                                                                                            {dataset.length > 0 ? (
+                                                                                                <table className="w-full text-left border-separate border-spacing-y-2">
+                                                                                                    <thead>
+                                                                                                        <tr>
+                                                                                                            {Object.keys(dataset[0]).map(col => (
+                                                                                                                <th key={col} className="px-5 py-3 text-[10px] font-black text-brand-400 uppercase tracking-widest bg-brand-500/5 rounded-xl border border-white/5">{col}</th>
+                                                                                                            ))}
+                                                                                                        </tr>
+                                                                                                    </thead>
+                                                                                                    <tbody>
+                                                                                                        {dataset.slice(0, 10).map((row, ridx) => (
+                                                                                                            <tr key={ridx} className="group hover:scale-[1.01] transition-transform">
+                                                                                                                {Object.values(row).map((val, vidx) => (
+                                                                                                                    <td key={vidx} className="px-5 py-4 text-xs text-slate-300 bg-white/[0.02] group-hover:bg-white/[0.04] first:rounded-l-2xl last:rounded-r-2xl border-y border-white/5 first:border-l last:border-r font-medium">
+                                                                                                                        {String(val)}
+                                                                                                                    </td>
+                                                                                                                ))}
+                                                                                                            </tr>
+                                                                                                        ))}
+                                                                                                    </tbody>
+                                                                                                </table>
+                                                                                            ) : (
+                                                                                                <div className="p-10 text-center text-slate-500 text-xs font-medium italic">
+                                                                                                    Query completed successfully, but returned no records.
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                        {dataset.length > 10 && (
+                                                                                            <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
+                                                                                                Continuing Log Sequence... (+{dataset.length - 10} items)
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
-                                                                                </div>
-                                                                                <div className="p-6 overflow-x-auto">
-                                                                                    <table className="w-full text-left border-separate border-spacing-y-2">
-                                                                                        <thead>
-                                                                                            <tr>
-                                                                                                {Object.keys(msg.data[0]).map(col => (
-                                                                                                    <th key={col} className="px-5 py-3 text-[10px] font-black text-brand-400 uppercase tracking-widest bg-brand-500/5 rounded-xl border border-white/5">{col}</th>
-                                                                                                ))}
-                                                                                            </tr>
-                                                                                        </thead>
-                                                                                        <tbody>
-                                                                                            {msg.data.slice(0, 10).map((row, ridx) => (
-                                                                                                <tr key={ridx} className="group hover:scale-[1.01] transition-transform">
-                                                                                                    {Object.values(row).map((val, vidx) => (
-                                                                                                        <td key={vidx} className="px-5 py-4 text-xs text-slate-300 bg-white/[0.02] group-hover:bg-white/[0.04] first:rounded-l-2xl last:rounded-r-2xl border-y border-white/5 first:border-l last:border-r font-medium">
-                                                                                                            {String(val)}
-                                                                                                        </td>
-                                                                                                    ))}
-                                                                                                </tr>
-                                                                                            ))}
-                                                                                        </tbody>
-                                                                                    </table>
-                                                                                </div>
-                                                                                {msg.data.length > 10 && (
-                                                                                    <div className="p-3 bg-white/[0.02] text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">
-                                                                                        Continuing Log Sequence... (+{msg.data.length - 10} items)
-                                                                                    </div>
-                                                                                )}
+                                                                                ))}
                                                                             </div>
                                                                         )}
                                                                     </motion.div>

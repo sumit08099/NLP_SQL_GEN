@@ -135,7 +135,8 @@ def get_table_profile(table_name):
 def execute_query(sql_query, user_id=None):
     """
     Executes the generated SQL query and returns the results.
-    If user_id is provided, it validates that the query only touches the user's tables.
+    Supports multiple statements.
+    Returns: List of {"rows": [], "columns": []} or (None, error_msg)
     """
     conn = get_db_connection()
     if not conn:
@@ -148,12 +149,7 @@ def execute_query(sql_query, user_id=None):
         user_table_list = [t[0].lower() for t in user_tables]
         session.close()
 
-        # Rough check: Find all potential table names in SQL (wrapped in double quotes or not)
-        # and see if they are in the user_table_list or system tables
-        # Allow system tables only if needed. For now, we restrict to ONLY user tables for safety.
-        # This regex looks for words after FROM or JOIN
         used_tables = re.findall(r'FROM\s+"?(\w+)"?|JOIN\s+"?(\w+)"?', sql_query, re.IGNORECASE)
-        # used_tables is list of tuples like [('name', ''), ('', 'other')]
         flat_used = [t for tup in used_tables for t in tup if t]
         
         for ut in flat_used:
@@ -161,11 +157,31 @@ def execute_query(sql_query, user_id=None):
                  return None, f"Security Violation: Access denied to table '{ut}'."
 
     try:
+        all_results = []
         with conn.cursor() as cur:
             cur.execute(sql_query)
-            colnames = [desc[0] for desc in cur.description]
-            results = cur.fetchall()
-            return results, colnames
+            
+            # Use nextset() to handle multiple result sets (e.g. multi-statement queries)
+            while True:
+                if cur.description:
+                    colnames = [desc[0] for desc in cur.description]
+                    rows = cur.fetchall()
+                    all_results.append({
+                        "columns": colnames,
+                        "rows": rows
+                    })
+                
+                try:
+                    if not cur.nextset():
+                        break
+                except psycopg2.ProgrammingError:
+                    # Some statements (like DDL/DML) don't return sets
+                    break
+            
+            if not all_results:
+                return [], [] # No rows returned but successful
+                
+            return all_results, ""
     except Exception as e:
         return None, str(e)
     finally:

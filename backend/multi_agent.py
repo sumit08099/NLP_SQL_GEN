@@ -248,15 +248,15 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
         return state
 
     try:
-        results, columns = database.execute_query(sql, user_id=state.get('user_id'))
-        if results is not None:
-            state['query_results'] = results
-            state['query_columns'] = columns
+        all_res, err = database.execute_query(sql, user_id=state.get('user_id'))
+        if all_res is not None:
+            # all_res is now a list of {"columns": [], "rows": []}
+            state['query_results'] = all_res
             state['error_message'] = ""
             state['next_agent'] = "formatter"
         else:
             # Error feedback loop
-            state['error_message'] = columns
+            state['error_message'] = err
             state['last_failed_sql'] = sql
             if state['iteration_count'] < 3:
                 print(f"❌ Execution failed. Providing feedback for retry.")
@@ -280,24 +280,30 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
         state['final_answer'] = f"System Error: {state['error_message']}"
         return state
         
-    data_sample = state['query_results'][:100]
-    columns = state.get('query_columns', [])
-    data_str = str([dict(zip(columns, row)) for row in data_sample])
-    
+    # Aggregate context from all result sets
+    full_context = ""
+    for idx, res in enumerate(state['query_results']):
+        cols = res.get('columns', [])
+        rows = res.get('rows', [])[:50] # Limit sample per set
+        data_sample = [dict(zip(cols, r)) for r in rows]
+        full_context += f"\nDATASET {idx+1}:\n{str(data_sample)}\n"
+
     prompt = f"""You are a Pro Data Analyst. 
 The user asked: {state['user_query']}
-Raw Results: {data_str}
+Available Datasets:
+{full_context}
 
 TASK:
-1. ANALYTICAL STORYTELLING: Don't just list data. Identify patterns, outliers, or significant totals.
+1. ANALYTICAL STORYTELLING: Don't just list data. Identify patterns, outliers, or significant totals across ALL provided datasets.
 2. ANSWER THE "WHY": If the data shows something interesting, point it out.
 3. STRUCTURE: Use a clean, point-wise breakdown. 
 4. NO BOLD: Strict rule - never use double asterisks (**).
 
 Example Output Style:
-Overview: Found 4 major revenue clusters...
-- Region X is the leader with 50k...
-- Observation: Data shows a consistent dip in Q2..."""
+Overview: Found 4 major revenue clusters across both tables...
+- In Dataset 1 (Bookings), we see...
+- Dataset 2 (History) confirms that...
+- Observation: There is a correlation between X and Y..."""
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)

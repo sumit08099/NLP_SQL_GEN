@@ -127,34 +127,45 @@ async def chat(query: str = Form(...), user: User = Depends(get_current_user)):
                 "potential_matches": result.get('potential_matches', [])
             }
 
+        # Prepare datasets for frontend
+        datasets = []
+        for res in result.get('query_results', []):
+            cols = res.get('columns', [])
+            rows = res.get('rows', [])
+            datasets.append([dict(zip(cols, row)) for row in rows])
+
         return {
             "answer": result['final_answer'],
             "sql": result.get('generated_sql'),
-            "data": [dict(zip(result.get('query_columns', []), row)) for row in result.get('query_results', [])],
+            "data": datasets,
             "plan": result.get('query_plan'),
             "reflection": result.get('reflection_notes')
         }
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/export")
 async def export_data(sql: str = Form(...), user: User = Depends(get_current_user)):
     try:
-        # Security: In a production app, we should parse the SQL 
-        # to ensure it only touches the user's tables.
-        results, columns = database.execute_query(sql)
-        if results is None:
-            raise HTTPException(status_code=400, detail=columns)
+        all_res, err = database.execute_query(sql)
+        if all_res is None:
+            raise HTTPException(status_code=400, detail=err)
             
-        df = pd.DataFrame(results, columns=columns)
         stream = io.StringIO()
-        df.to_csv(stream, index=False)
+        if all_res:
+            for idx, res in enumerate(all_res):
+                df = pd.DataFrame(res['rows'], columns=res['columns'])
+                if idx > 0:
+                    stream.write("\n\n" + "-"*20 + f" NEXT DATASET " + "-"*20 + "\n\n")
+                df.to_csv(stream, index=False)
         
         from fastapi.responses import StreamingResponse
         return StreamingResponse(
             iter([stream.getvalue()]),
             media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=query_result.csv"}
+            headers={"Content-Disposition": "attachment; filename=multi_query_results.csv"}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
