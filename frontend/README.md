@@ -1,125 +1,67 @@
-# 🎨 NLP2SQL - Frontend
+# 🎨 NLP2SQL: Neural Intelligence UI
 
-Modern React-based frontend for the NLP2SQL platform. Built with **React 19**, **Vite 7**, and **TailwindCSS v4** for a premium, glassmorphic user experience.
+The visual interface for the **NLP2SQL Intelligence Layer**. A state-of-the-art, glassmorphic workspace designed with **React 19** and **Framer Motion** for a premium, high-tech experience.
 
-## 🌟 Features
+---
 
-- **Data Upload Interface**: Drag-and-drop CSV/Excel file ingestion
-- **Real-time Chat**: Interactive conversation with the AI
-- **Schema Explorer**: Live view of database structure
-- **SQL Visualization**: See generated queries with syntax highlighting
-- **Results Display**: Clean table rendering with pagination
-- **Dark Theme**: Modern glassmorphism design with smooth animations
+## 🌟 Visual & Interactive Features
 
-## 🚀 Quick Start
+### 🖥️ Dynamic Landing Page
+An immersive entry point featuring:
+*   **Animated Terminal Visualizer**: A live-action SQL execution demo showing real-time metrics and system status.
+*   **Interactive Tech Cards**: Clickable feature blocks with modal expansions explaining the engine's inner workings.
+*   **Mesh-Pulse Backgrounds**: Dynamic, moving gradients and glass effects that feel alive.
 
-### Prerequisites
-- Node.js 18+ and npm
+### 🧪 Advanced Workspace
+The command center for data analysis:
+*   **Real-Time Token Sync**: Watch the system clock and session tokens update in the secure header.
+*   **Knowledge Mapping**: Side-bar visualization of your uploaded datasets with instant CSV export.
+*   **AI Chain Detail**: Expandable technical insights showing the **Logic Path**, **Reflection Audit**, and **Execution Plan** for every query.
+*   **Analytical Storytelling**: Human-readable data summaries that identify trends and outliers automatically.
+
+### 🛡️ Authentication Protocol
+*   Polished **Operative Registry** (Signup) and **Secure Initializer** (Login) pages.
+*   Full JWT session management with auto-redirection and unauthorized state handling.
+
+---
+
+## 🏗️ Technical Stack
+
+*   **React 19.2**: Utilizing latest concurrent rendering and state patterns.
+*   **Framer Motion**: Powering fluid layout transitions and micro-animations.
+*   **TailwindCSS v4**: Next-gen styling with simplified configuration.
+*   **Lucide React**: Clean, semantic iconography.
+*   **Axios**: Secure API communication layer.
+
+---
+
+## 🚀 Development Workflow
 
 ### Installation
 ```bash
 npm install
 ```
 
-### Development
+### Development Mode (with Hot Reload)
 ```bash
 npm run dev
 ```
-Access at [http://localhost:5173](http://localhost:5173)
 
-### Build for Production
+### Production Build
 ```bash
 npm run build
 npm run preview
 ```
 
-## 📦 Tech Stack
-
-- **React 19.2.0** - Latest React with concurrent features
-- **Vite 7.3.1** - Lightning-fast build tool
-- **TailwindCSS 4.1.18** - Utility-first CSS framework (v4 beta)
-- **Axios** - HTTP client for API calls
-- **Lucide React** - Beautiful icon library
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Purple gradient (`#8b5cf6` to `#7c3aed`)
-- **Background**: Slate 950 (`#0f172a`)
-- **Surface**: Slate 900/800 with glassmorphism
-- **Text**: White to Slate 400 gradient
-
-### Key Components
-- **Sidebar**: Data ingestion + schema explorer
-- **Chat Area**: Message bubbles with SQL and results
-- **Input Bar**: Floating input with send button
-
-## 🔧 Configuration
-
-### API Endpoint
-Update in `src/App.jsx`:
-```javascript
-const API_BASE_URL = 'http://localhost:8000';
-```
-
-### Tailwind Config
-See `tailwind.config.js` for custom theme extensions.
+---
 
 ## 📁 Project Structure
 
-```
-frontend/
-├── src/
-│   ├── App.jsx           # Main application component
-│   ├── index.css         # Global styles + Tailwind imports
-│   └── main.jsx          # React entry point
-├── public/               # Static assets
-├── index.html            # HTML template
-├── package.json          # Dependencies
-├── vite.config.js        # Vite configuration
-├── tailwind.config.js    # Tailwind configuration
-└── postcss.config.js     # PostCSS configuration
-```
+*   **/src/pages**: Core layouts including `LandingPage`, `HomePage` (Workspace), `LoginPage`, and `SignupPage`.
+*   **/src/assets**: High-resolution brand assets and logos.
+*   **/src/index.css**: The core design system containing mesh backgrounds and glass utilities.
 
-## 🎯 Key Features Explained
+---
 
-### File Upload
-- Accepts `.csv`, `.xlsx`, `.xls` files
-- Auto-generates table name from filename
-- Shows upload progress and success/error states
-
-### Chat Interface
-- Displays user queries and AI responses
-- Shows generated SQL in code blocks
-- Renders query results in tables
-- Auto-scrolls to latest message
-
-### Schema Explorer
-- Fetches schema on component mount
-- Updates after successful file upload
-- Displays table structures in monospace font
-
-## 🐛 Troubleshooting
-
-### Blank Screen
-- Check browser console for errors
-- Ensure backend is running on port 8000
-- Verify CORS is enabled in backend
-
-### Tailwind Not Working
-- Ensure `@tailwindcss/postcss` is installed
-- Check `postcss.config.js` is present
-- Restart dev server after config changes
-
-### API Errors
-- Verify `API_BASE_URL` matches backend
-- Check network tab for failed requests
-- Ensure backend is accessible
-
-## 📄 License
-
-MIT License - Part of NLP SQL Master project
-
-## 👨‍💻 Author
-
-**Sumit Karan**
+**UI/UX Architect:** Sumit Karan  
+**Interface Version:** 4.2.1-UI
