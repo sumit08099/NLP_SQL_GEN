@@ -277,8 +277,8 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
     print("📝 FORMATTER: Analytical Storytelling...")
     
     if state['error_message'] and not state['query_results']:
-        reasoning_intro = f"Reasoning: {state.get('query_plan', 'Analyzing target tables...')}\n\n"
-        state['final_answer'] = f"{reasoning_intro}Database Error: {state['error_message']}"
+        plan = state.get('query_plan', 'analyzing data')
+        state['final_answer'] = f"While {plan}, the system encountered a database interruption: {state['error_message']}"
         state['next_agent'] = "END"
         return state
         
@@ -288,25 +288,24 @@ def formatter_agent(state: MultiAgentState) -> MultiAgentState:
         cols = res.get('columns', [])
         rows = res.get('rows', [])[:50] # Limit sample per set
         data_sample = [dict(zip(cols, r)) for r in rows]
-        full_context += f"\nDATASET {idx+1}:\n{str(data_sample)}\n"
+        full_context += f"\nDATASET {idx+1} (Raw Context):\n{str(data_sample)}\n"
 
     prompt = f"""You are a Pro Data Analyst. 
 The user asked: {state['user_query']}
-Logical Plan followed: {state['query_plan']}
-Available Datasets:
-{full_context}
+Logical Plan: {state['query_plan']}
+Available Datasets for reference: {full_context}
 
 TASK:
-1. START WITH REASONING: Briefly explain what you looked for and why (based on the plan).
-2. ANALYTICAL STORYTELLING: Identify patterns, outliers, or significant totals across ALL provided datasets.
-3. STRUCTURE: Use a clean, point-wise breakdown. 
-4. NO BOLD: Strict rule - never use double asterisks (**).
+1. NARRATIVE START: Start by naturally mentioning what you analyzed (e.g., 'In response to your query, I analyzed the booking history and medical records...')
+2. PRO STORYTELLING: Identify patterns or totals across ALL datasets. 
+3. NO RAW DATA: Never include the word 'Dataset', never use backticks (```), and never show raw lists or dictionaries.
+4. NO HEADERS: Do not use labels like 'Reasoning:' or 'Insights:'. Just tell the story.
+5. NO BOLD: Never use double asterisks (**).
 
-Example Output Style:
-Reasoning: I accessed both the history and booking tables to correlate...
-Insights:
-- Found 4 major clusters...
-- In Dataset 1 (Bookings), we see..."""
+Example Style:
+I have cross-referenced the selected tables to find current trends. The data reveals that revenue has peaked...
+- First, we notice a high volume of...
+- Additionally, the correlation between..."""
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
