@@ -21,7 +21,7 @@ const LandingPage = () => {
         {
             icon: <Database className="text-purple-400" size={24} />,
             title: "Neural Ingestion",
-            description: "Simply upload your CSV or Excel files. Our AI automatically maps the schema to its knowledge kernels."
+            description: "Simply upload your CSV or Excel files. Our AI automatically maps the schema to its data sources."
         },
         {
             icon: <Terminal className="text-emerald-400" size={24} />,
@@ -47,7 +47,7 @@ const LandingPage = () => {
                     <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shadow-lg shadow-brand-500/20">
                         <img src={logo} alt="Logo" className="w-full h-full object-cover" />
                     </div>
-                    <span className="text-xl font-black tracking-tighter">SQL MASTER</span>
+                    <span className="text-xl font-black tracking-tighter">NLP2SQL</span>
                 </div>
                 <div className="flex items-center gap-6">
                     {token ? (
@@ -123,7 +123,7 @@ const LandingPage = () => {
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Neural Kernel Active</span>
+                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">NLP2SQL Engine Active</span>
                                         </div>
                                         <div className="terminal-box bg-slate-950">
                                             <div className="terminal-content">
@@ -186,11 +186,13 @@ const LandingPage = () => {
             <footer className="relative z-50 border-t border-white/5 bg-slate-950/40 backdrop-blur-3xl py-20">
                 <div className="max-w-7xl mx-auto px-10 flex flex-col items-center gap-10">
                     <div className="flex items-center gap-3 opacity-50">
-                        <img src={logo} alt="Logo" className="w-8 h-8 object-contain" />
-                        <span className="text-sm font-black tracking-tighter">SQL MASTER</span>
+                        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 shadow-lg shadow-brand-500/20">
+                            <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-sm font-black tracking-tighter">NLP2SQL</span>
                     </div>
                     <div className="flex gap-12 text-slate-500 text-xs font-black uppercase tracking-[0.2em]">
-                        <a href="#" className="hover:text-brand-400 transition-colors">Neural Core</a>
+                        <a href="#" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</a>
                         <a href="#" className="hover:text-brand-400 transition-colors">Registry</a>
                         <a href="#" className="hover:text-brand-400 transition-colors">Workspace</a>
                         <a href="#" className="hover:text-brand-400 transition-colors">Support</a>

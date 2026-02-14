@@ -1,6 +1,6 @@
-# 🎨 NLP SQL Master - Frontend
+# 🎨 NLP2SQL - Frontend
 
-Modern React-based frontend for the NLP SQL Master platform. Built with **React 19**, **Vite 7**, and **TailwindCSS v4** for a premium, glassmorphic user experience.
+Modern React-based frontend for the NLP2SQL platform. Built with **React 19**, **Vite 7**, and **TailwindCSS v4** for a premium, glassmorphic user experience.
 
 ## 🌟 Features
 

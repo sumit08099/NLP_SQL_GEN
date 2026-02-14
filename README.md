@@ -1,4 +1,4 @@
-# 🤖 NLP SQL Master - Multi-Agent AI Data Analysis Platform
+# 🤖 NLP2SQL - Multi-Agent AI Data Analysis Platform
 
 A professional-grade **Natural Language to SQL (NL2SQL)** system that transforms plain English questions into complex SQL queries. Built with a **Multi-Agent Architecture** and a **Hybrid Intelligence** model.
 
@@ -11,7 +11,7 @@ A professional-grade **Natural Language to SQL (NL2SQL)** system that transforms
 ## 🌟 Key Features
 
 ### 🧠 Multi-Agent intelligence
-- **Supervisor Agent**: Analyzes query intent and maps it to specific knowledge kernels (tables).
+- **Supervisor Agent**: Analyzes query intent and maps it to specific data sources (tables).
 - **Reasoning Agent (Hybrid)**: First consults the local ML model, then uses Gemini to architect the final PostgreSQL query.
 - **Reflection Agent**: A "code reviewer" that validates SQL against the schema to catch potential errors before execution.
 - **Self-Correction**: Automatically retries and fixes queries if the database reports an error.

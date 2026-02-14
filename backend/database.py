@@ -64,7 +64,7 @@ def ingest_dataframe(df, table_name, user_id, original_filename=None):
             session.add(new_meta)
         
         session.commit()
-        return True, f"Table '{table_name}' ingested and mapped to neural knowledge."
+        return True, f"Table '{table_name}' ingested and mapped to NLP2SQL knowledge base."
     except Exception as e:
         session.rollback()
         return False, str(e)

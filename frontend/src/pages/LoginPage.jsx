@@ -87,7 +87,7 @@ const LoginPage = () => {
                         <img src={logo} alt="Logo" className="w-16 h-16 rounded-full object-cover group-hover:scale-110 transition-transform" />
                     </motion.div>
                     <h1 className="text-5xl font-black text-white tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                        SQL MASTER
+                        NLP2SQL
                     </h1>
                     <div className="flex items-center gap-2 px-4 py-1.5 glass rounded-full border border-white/10">
                         <Sparkles size={14} className="text-brand-400" />

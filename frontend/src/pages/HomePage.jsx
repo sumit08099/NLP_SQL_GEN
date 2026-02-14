@@ -192,10 +192,10 @@ function HomePage() {
                         <img src={logo} alt="Logo" className="w-6 h-6 object-cover rounded-full" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black tracking-tighter text-white">SQL MASTER</h1>
+                        <h1 className="text-xl font-black tracking-tighter text-white">NLP2SQL</h1>
                         <div className="flex items-center gap-2 mt-0.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-                            <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Neural Engine v4</span>
+                            <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">NLP2SQL Engine v4</span>
                         </div>
                     </div>
                 </div>
@@ -294,7 +294,7 @@ function HomePage() {
 
                     {/* Active Knowledge */}
                     <section>
-                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 px-2">Neural Knowledge Map</h2>
+                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 px-2">NLP2SQL Knowledge Map</h2>
                         <div className="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-2">
                             {schema && schema.split('Table:').slice(1).map((tableInfo, idx) => {
                                 const tableNameMatch = tableInfo.trim().split('\n')[0];
@@ -405,9 +405,9 @@ function HomePage() {
                                                 >
                                                     <div className="absolute inset-0 bg-brand-400/20 animate-pulse" />
                                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    <img src={logo} alt="AI Core" className="w-12 h-12 rounded-full object-cover relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+                                                    <img src={logo} alt="NLP2SQL" className="w-12 h-12 rounded-full object-cover relative z-10 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                                                 </motion.div>
-                                                <span className="text-[9px] font-black text-brand-400 uppercase tracking-widest">Neural Core</span>
+                                                <span className="text-[9px] font-black text-brand-400 uppercase tracking-widest">NLP2SQL Engine</span>
                                             </div>
                                             <div className="w-full space-y-6">
                                                 <motion.div
@@ -499,13 +499,13 @@ function HomePage() {
                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                                             <div className="p-6 glass-card border-brand-500/20 bg-brand-500/[0.03]">
                                                                                 <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-brand-400 uppercase tracking-widest">
-                                                                                    <Cpu size={14} /> Neural Logic Plan
+                                                                                    <Cpu size={14} /> NLP2SQL Logic Plan
                                                                                 </div>
                                                                                 <p className="text-xs text-slate-400 leading-relaxed italic">{msg.plan}</p>
                                                                             </div>
                                                                             <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
                                                                                 <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                                                                                    <Terminal size={14} /> Execution Kernel
+                                                                                    <Terminal size={14} /> SQL Engine
                                                                                 </div>
                                                                                 <div className="terminal-box">
                                                                                     <div className="terminal-header">
@@ -594,7 +594,7 @@ function HomePage() {
                                     <Loader2 size={32} className="animate-spin text-brand-500 relative z-10" />
                                 </div>
                                 <div className="relative z-10">
-                                    <p className="text-base font-black text-white uppercase tracking-widest">Querying Neural Core...</p>
+                                    <p className="text-base font-black text-white uppercase tracking-widest">Querying NLP2SQL Engine...</p>
                                     <div className="flex gap-1.5 mt-2">
                                         {[0, 1, 2].map(n => (
                                             <motion.div
@@ -624,7 +624,7 @@ function HomePage() {
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Ask the Neural Core anything about your database..."
+                                placeholder="Ask NLP2SQL anything about your database..."
                                 className="bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-600 text-lg py-5 flex-1 font-medium tracking-tight"
                             />
                             <button
@@ -637,7 +637,7 @@ function HomePage() {
                         </div>
                         <div className="flex justify-center mt-6 gap-8">
                             <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> Neural Optimizing
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> NLP2SQL Optimizing
                             </span>
                             <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
                                 <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> Protocol v4.2.0
