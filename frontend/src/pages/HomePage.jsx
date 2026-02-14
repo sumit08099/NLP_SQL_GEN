@@ -38,6 +38,7 @@ function HomePage() {
     const [token] = useState(localStorage.getItem('token'));
     const [username] = useState(localStorage.getItem('username') || 'Operative');
     const [selectedForAmbiguity, setSelectedForAmbiguity] = useState([]);
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     const navigate = useNavigate();
     const chatEndRef = useRef(null);
@@ -64,6 +65,11 @@ function HomePage() {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
 
     const toggleTechDetails = (msgIndex) => {
         setShowTechDetails(prev => ({
@@ -336,7 +342,9 @@ function HomePage() {
                         <div className="h-6 w-[1px] bg-white/5" />
                         <div className="flex items-center gap-3 text-slate-500">
                             <Clock size={16} />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">System Time: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] font-mono">
+                                System Time: {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
                         </div>
                     </div>
 
@@ -615,32 +623,32 @@ function HomePage() {
                 {/* Input Layer */}
                 <footer className="p-10 pt-0 relative z-30">
                     <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-full max-w-4xl px-10 z-50">
-                        <div className="glass-card p-2 pr-4 bg-slate-900/60 ring-1 ring-white/10 shadow-[0_0_100px_rgba(59,98,255,0.15)] flex items-center gap-4 border-2 border-brand-500/20 group focus-within:border-brand-500/50 transition-all">
-                            <div className="p-4 bg-brand-500/10 rounded-3xl text-brand-400 group-focus-within:bg-brand-500/20 group-focus-within:scale-110 transition-all">
-                                <BrainIcon size={24} />
+                        <div className="glass-card p-3 pr-6 bg-slate-900/80 ring-1 ring-white/10 shadow-[0_0_100px_rgba(59,98,255,0.2)] flex items-center gap-5 border-2 border-brand-500/20 group focus-within:border-brand-500/60 transition-all rounded-[3rem]">
+                            <div className="w-14 h-14 bg-slate-950 rounded-[1.8rem] flex items-center justify-center p-0.5 border border-white/10 shadow-2xl group-focus-within:border-brand-500/40 transition-all">
+                                <img src={logo} alt="Logo" className="w-full h-full object-cover rounded-[1.6rem] group-focus-within:scale-110 transition-transform" />
                             </div>
                             <input
                                 type="text"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Ask NLP2SQL anything about your database..."
+                                placeholder="Command the data layer... (e.g. 'Show revenue by city')"
                                 className="bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-600 text-lg py-5 flex-1 font-medium tracking-tight"
                             />
                             <button
                                 onClick={() => handleSend()}
                                 disabled={isProcessing || !query.trim()}
-                                className="p-5 bg-brand-600 hover:bg-brand-500 text-white rounded-[2rem] shadow-xl shadow-brand-500/30 transition-all hover:scale-110 active:scale-90 disabled:opacity-50 disabled:grayscale hover:rotate-3"
+                                className="p-5 bg-gradient-to-br from-brand-500 to-indigo-600 hover:from-brand-400 hover:to-indigo-500 text-white rounded-[2rem] shadow-[0_0_20px_rgba(59,130,246,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:grayscale hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]"
                             >
-                                {isProcessing ? <RefreshCw className="animate-spin" size={20} /> : <Send size={20} />}
+                                {isProcessing ? <RefreshCw className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                             </button>
                         </div>
-                        <div className="flex justify-center mt-6 gap-8">
-                            <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> NLP2SQL Optimizing
+                        <div className="flex justify-center mt-6 gap-10">
+                            <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Neural Sync Active
                             </span>
-                            <span className="flex items-center gap-2 text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" /> Protocol v4.2.0
+                            <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Protocol v4.2.0
                             </span>
                         </div>
                     </div>
