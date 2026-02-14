@@ -77,19 +77,15 @@ const LandingPage = () => {
 
             {/* Navigation */}
             <nav className="relative z-50 flex items-center justify-between px-10 py-8 max-w-7xl mx-auto backdrop-blur-md">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-4"
-                >
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-[0_0_20px_rgba(59,130,246,0.3)] bg-slate-900 p-0.5">
+                <Link to="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity group">
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-[0_0_20px_rgba(59,130,246,0.3)] bg-slate-900 p-0.5 group-hover:scale-105 transition-transform">
                         <img src={logo} alt="Logo" className="w-full h-full object-cover rounded-full" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">NLP2SQL</span>
                         <span className="text-[8px] font-black uppercase tracking-[0.4em] text-brand-500 -mt-1">Intelligence Layer</span>
                     </div>
-                </motion.div>
+                </Link>
 
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
@@ -421,12 +417,12 @@ const LandingPage = () => {
             <footer className="relative z-50 border-t border-white/5 bg-slate-950/40 backdrop-blur-3xl py-32">
                 <div className="max-w-7xl mx-auto px-10 grid grid-cols-1 md:grid-cols-4 gap-20">
                     <div className="col-span-2 space-y-10">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-lg shadow-brand-500/10">
+                        <Link to="/" className="flex items-center gap-4 group w-fit">
+                            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-lg shadow-brand-500/10 group-hover:scale-105 transition-transform">
                                 <img src={logo} alt="Logo" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-3xl font-black tracking-tighter">NLP2SQL</span>
-                        </div>
+                        </Link>
                         <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-sm">
                             Next-generation autonomous data intelligence platform. Built for precision. Engineered for scale.
                         </p>
@@ -440,10 +436,9 @@ const LandingPage = () => {
                     <div className="space-y-10">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Resource Registry</h4>
                         <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
-                            <a href="#" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</a>
-                            <a href="#" className="hover:text-brand-400 transition-colors">Neural Assets</a>
-                            <a href="#" className="hover:text-brand-400 transition-colors">Protocol Specs</a>
-                            <a href="#" className="hover:text-brand-400 transition-colors">API Kernel</a>
+                            <Link to="/workspace" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</Link>
+                            <Link to="/signup" className="hover:text-brand-400 transition-colors">Registry</Link>
+                            <Link to="/workspace" className="hover:text-brand-400 transition-colors">Workspace</Link>
                         </div>
                     </div>
 

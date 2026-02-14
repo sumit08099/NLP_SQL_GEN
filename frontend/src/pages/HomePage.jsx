@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Send, Upload, Database, MessageSquare, ChevronRight, CheckCircle,
@@ -188,9 +188,9 @@ function HomePage() {
                 className="w-80 bg-slate-950/60 border-r border-white/5 flex flex-col p-6 backdrop-blur-3xl z-30"
             >
                 <div className="flex items-center gap-4 mb-10 px-2 leading-tight">
-                    <div className="p-3 glass-card shadow-lg shadow-brand-500/10 rounded-full overflow-hidden">
+                    <Link to="/" className="p-3 glass-card shadow-lg shadow-brand-500/10 rounded-full overflow-hidden hover:scale-110 transition-transform">
                         <img src={logo} alt="Logo" className="w-6 h-6 object-cover rounded-full" />
-                    </div>
+                    </Link>
                     <div>
                         <h1 className="text-xl font-black tracking-tighter text-white">NLP2SQL</h1>
                         <div className="flex items-center gap-2 mt-0.5">

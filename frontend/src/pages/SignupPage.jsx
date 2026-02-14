@@ -90,12 +90,12 @@ const SignupPage = () => {
             >
                 {/* Branding */}
                 <div className="flex flex-col items-center mb-10 text-center">
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="p-1 glass-card mb-6 shadow-2xl shadow-purple-500/20 rounded-full overflow-hidden"
+                    <Link
+                        to="/"
+                        className="p-1 glass-card mb-6 shadow-2xl shadow-purple-500/20 rounded-full overflow-hidden hover:scale-105 transition-transform"
                     >
                         <img src={logo} alt="Logo" className="w-16 h-16 rounded-full object-cover" />
-                    </motion.div>
+                    </Link>
                     <h1 className="text-4xl font-black text-white tracking-tighter mb-2 uppercase">Operative Registry</h1>
                     <p className="text-slate-400 font-medium">Initialize your credentials for the secure data layer</p>
                 </div>
