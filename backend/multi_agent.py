@@ -62,103 +62,79 @@ class MultiAgentState(TypedDict):
     is_ambiguous: bool
     potential_matches: List[str]
     user_id: int
+    last_failed_sql: str  # For Error-Aware Retries
 
 # ============================================================================
 # AGENT 1: SUPERVISOR
 # ============================================================================
 def supervisor_agent(state: MultiAgentState) -> MultiAgentState:
-    print("🎯 SUPERVISOR: Analyzing query context...")
+    print("🎯 SUPERVISOR: Analyzing query context (Semantic Search)...")
     
-    # Short-circuit if no knowledge base exists
     if "No user-uploaded tables found" in state['db_schema']:
-        state['final_answer'] = "Protocol Interrupted: No active knowledge base detected. Please upload an Excel or CSV file in the 'Data Ingestion' zone so I can initialize your neural data layer."
+        state['final_answer'] = "Protocol Interrupted: No active knowledge base detected. Please upload data so I can initialize your neural data layer."
         state['next_agent'] = END
-        state['is_ambiguous'] = False
         return state
 
-    prompt = f"""You are a SQL Assistant Supervisor.
+    # SEMANTIC PRE-FILTER: Extract all table names and their column headers
+    user_tables = re.findall(r"Table:\s*(\w+)", state['db_schema'], re.IGNORECASE)
+    
+    prompt = f"""You are a SQL Architect Supervisor.
 Analyze this request: "{state['user_query']}"
-SCHEMA:
+AVAILABLE TABLES: {user_tables}
+SCHEMA DETAILS:
 {state['db_schema']}
 
-IMPORTANT:
-- Prioritize user-uploaded CSV tables over system tables ('alembic_version', 'dynamic_tables', 'users', 'products', 'orders').
-- If the user asks about "data" or "tables", they almost certainly mean their CSV files.
+TASK:
+1. Identify target tables.
+2. Determine if the query is ambiguous.
+3. SEMANTIC FILTER: If many tables exist, only select the ones that contain keywords relevant to the query.
 
 Return JSON ONLY:
 {{
     "target_tables": ["table1"],
     "query_type": "single|join|aggregation",
     "is_ambiguous": true/false,
+    "confidence_score": 0.0-1.0,
     "reasoning": "Brief explanation"
 }}
-
-STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multiple tables exist in the schema, you MUST set "is_ambiguous": true and leave "target_tables" empty. DO NOT GUESS. Only set "target_tables" if you are 95% sure which one the user means based on keywords.
 """
     
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         text = response.text
-        json_match = re.search(r'\{(?:[^{}]|(?R))*\}', text, re.DOTALL)
-        if json_match:
-            clean_json = json_match.group(0)
-        else:
-            clean_json = text.replace("```json", "").replace("```", "").strip()
-            
-        data = json.loads(clean_json)
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+        data = json.loads(json_match.group(0)) if json_match else {"target_tables": [], "is_ambiguous": True}
+        
         state['target_tables'] = data.get("target_tables", [])
         state['query_type'] = data.get("query_type", "single")
         state['is_ambiguous'] = data.get("is_ambiguous", False)
-        
-        # INCREASED ROBUSTNESS: Get list of all user tables from schema string
-        # More inclusive regex for table detection
-        all_user_tables = re.findall(r"Table:\s*(\w+)", state['db_schema'], re.IGNORECASE)
-        print(f"📊 Supervisor detected tables in schema: {all_user_tables}")
-        
-        # Filter out system tables if possible for potential_matches
-        system_tables = ['alembic_version', 'dynamic_tables', 'users', 'products', 'orders']
-        all_user_tables = [t for t in all_user_tables if t.lower() not in system_tables]
-        print(f"📊 User-specific tables: {all_user_tables}")
 
-        # 1. AUTO-ASSIGN IF ONLY ONE TABLE: If user didn't specify but there's only one choice, use it.
-        if not state.get('target_tables') and len(all_user_tables) == 1:
-             state['target_tables'] = all_user_tables
-             print(f"🎯 Defaulting to only available user table: {all_user_tables[0]}")
+        # FALLBACK: If AI missed it but keywords match, force it
+        if not state['target_tables']:
+            for table in user_tables:
+                if table.lower() in state['user_query'].lower():
+                    state['target_tables'] = [table]
+                    state['is_ambiguous'] = False
+                    break
 
-        # 2. STRENGTHEN AMBIGUITY: If generic query and > 1 table, force ambiguity
-        if (not state.get('target_tables') or state.get('is_ambiguous')) and len(all_user_tables) > 1:
-            state['is_ambiguous'] = True
-            state['potential_matches'] = all_user_tables
+        if state['is_ambiguous'] and len(user_tables) > 1:
+            state['potential_matches'] = user_tables
             state['next_agent'] = END
             return state
 
-        # 3. FINAL VALIDATION: If we still have no tables after everything, and user mentioned one, 
-        # try to find it in the query text as a fallback.
-        if not state.get('target_tables'):
-            for t in all_user_tables:
-                if t.lower() in state['user_query'].lower():
-                    state['target_tables'] = [t]
-                    break
-
-        state['potential_matches'] = []
-        
-        # SMARTER UNDERSTANDING: Fetch data profile for target tables
-        profile_context = ""
-        for table in state['target_tables']:
-            # Verify table exists in schema to avoid hallucinatory profile calls
-            if table in all_user_tables or table.lower() in [t.lower() for t in all_user_tables]:
-                profile = database.get_table_profile(table)
-                if profile:
-                    profile_context += f"\nData Profile (Table: {table}):\n{profile}\n"
-        
-        if profile_context:
-            state['db_schema'] += f"\n\nACTUAL DATA SAMPLES BY SUPERVISOR:{profile_context}"
-            print(f"📊 Supervisor enhanced context for {state['target_tables']}")
+        # ENHANCE SCHEMA: Strip irrelevant tables from schema to reduce noise (Semantic Schema Search)
+        if state['target_tables']:
+            filtered_schema = "RELEVANT SCHEMA SECTIONS:\n"
+            for t in state['target_tables']:
+                # Extract the table block using regex
+                match = re.search(f"Table: {t}\n( - .*\n)+", state['db_schema'], re.IGNORECASE)
+                if match:
+                    filtered_schema += match.group(0) + "\n"
+            state['db_schema'] = filtered_schema
 
         state['next_agent'] = "reasoning"
     except Exception as e:
         print(f"⚠️ Supervisor Error: {e}")
-        state['error_message'] = f"Supervisor Error: {str(e)}"
         state['next_agent'] = "reasoning"
     
     return state
@@ -167,62 +143,43 @@ STRICT RULE: If the request is generic (e.g. "show 5 rows", "summary") and multi
 # AGENT 2: REASONING (Hybrid: Local + Gemini)
 # ============================================================================
 def reasoning_agent(state: MultiAgentState) -> MultiAgentState:
-    print("🧠 REASONING: Building query plan...")
+    print("🧠 REASONING: Building query plan (Two-Step)...")
     
-    # HYBRID STEP: Use Local Model first if on first iteration
-    local_suggestion = ""
-    if state['iteration_count'] == 0 and LOCAL_MODEL_READY:
-        try:
-            input_text = f"translate English to SQL: {state['user_query']} | Schema: {state['db_schema']}"
-            inputs = local_tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
-            with torch.no_grad():
-                outputs = local_model.generate(**inputs, max_length=512)
-            local_suggestion = local_tokenizer.decode(outputs[0], skip_special_tokens=True)
-            print(f"📡 Local Model Suggested: {local_suggestion}")
-        except Exception:
-            pass
-
-    # LEARNING STEP: Check memory for similar past issues
-    relevant_memories = agent_memory.get_relevant_memory(state['user_query'])
-    memory_context = ""
-    if relevant_memories:
-        print(f"💡 Learning from {len(relevant_memories)} past experiences...")
-        memory_context = "\nPAST LESSONS (Avoid these mistakes):\n"
-        for m in relevant_memories:
-            memory_context += f"- For query '{m['query']}', '{m['failed_sql']}' failed with error '{m['error']}'. Correct fix was: '{m['corrected_sql']}'\n"
+    # Error-Aware Retry Logic
+    error_feedback = ""
+    if state['error_message']:
+        error_feedback = f"""
+❌ PREVIOUS ATTEMPT FAILED:
+SQL: {state.get('last_failed_sql', 'Unknown')}
+ERROR: {state['error_message']}
+GUIDANCE: Analyze why the previous SQL failed. Was it a missing column? A syntax error? Correct it now."""
 
     prompt = f"""You are a Senior SQL Architect. 
-Your goal is to generate a correct PostgreSQL query based on the user's request.
+TASK: Convert the user's request into a valid PostgreSQL query.
 
 USER REQUEST: {state['user_query']}
 TARGET TABLES: {state.get('target_tables', [])}
-DATABASE SCHEMA:
+SCHEMA CONTEXT:
 {state['db_schema']}
+{error_feedback}
 
-{f'LOCAL MODEL SUGGESTION: {local_suggestion}' if local_suggestion else ''}
-{memory_context}
-
-INSTRUCTIONS:
-1. Write a step-by-step reasoning plan.
-2. Generate the PostgreSQL query. 
-3. IMPORTANT: Always wrap table names and column names in double quotes (e.g., "table_name") to handle special characters.
-4. Use proper column names as shown in the schema.
-5. If a local suggestion or past lesson is provided, incorporate those insights.
-6. STRICTURE: Only use tables listed in "TARGET TABLES". If TARGET TABLES is empty, wait for supervisor instructions. DO NOT GUESS a table if it is not in the target list.
+TWO-STEP INSTRUCTIONS:
+1. LOGIC PATH: Explain which tables you will join and which columns you will filter.
+2. SQL GENERATION: Write the final query. Use double quotes for all identifiers (e.g. "Table_Name"."Column").
 
 Format:
-PLAN: [Describe your steps]
-SQL: [Your PostgreSQL query]"""
+LOGIC_PATH: [Step-by-step logic]
+SQL: [Your PostgreSQL Query]
+"""
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         content = response.text
         
         if "SQL:" in content:
-            state['query_plan'] = content.split("SQL:")[0].replace("PLAN:", "").strip()
+            state['query_plan'] = content.split("SQL:")[0].replace("LOGIC_PATH:", "").strip()
             sql_block = content.split("SQL:")[1].strip()
-            sql = re.sub(r'```sql\n?|```', '', sql_block).strip()
-            state['generated_sql'] = sql
+            state['generated_sql'] = re.sub(r'```sql\n?|```', '', sql_block).strip()
         else:
             state['generated_sql'] = content.strip()
             
@@ -237,41 +194,43 @@ SQL: [Your PostgreSQL query]"""
 # AGENT 3: REFLECTION
 # ============================================================================
 def reflection_agent(state: MultiAgentState) -> MultiAgentState:
-    print("🔍 REFLECTION: Validating SQL...")
+    print("🔍 REFLECTION: Schema-Obsessed Validation...")
     
     if not state.get('generated_sql'):
         state['next_agent'] = "reasoning"
         return state
         
-    prompt = f"""You are a SQL Code Reviewer.
-Validate if this PostgreSQL query is correct and matches the user's intent.
+    prompt = f"""You are a Senior Database Auditor.
+TASK: Perform a strict validation of the generated SQL against the actual schema.
 
-USER QUERY: {state['user_query']}
-GENERATED SQL: {state['generated_sql']}
-SCHEMA: {state['db_schema']}
+USER INTENT: {state['user_query']}
+SQL TO VERIFY: {state['generated_sql']}
+LEGAL SCHEMA:
+{state['db_schema']}
 
-Criteria:
-1. Does it use the correct table and column names?
-2. Is the JOIN logic correct (if applicable)?
-3. Will it run on PostgreSQL?
+CRITICAL CHECKS:
+1. HALLUCINATION CHECK: Are ALL column names present in the LEGAl SCHEMA?
+2. TABLE CHECK: Are the table names strictly matching the schema?
+3. LOGIC CHECK: Does the SQL actually answer the user query?
 
 Return:
-STATUS: [APPROVED or NEEDS_REVISION]
-REASONING: [Brief explanation]"""
+STATUS: APPROVED | NEEDS_REVISION
+CRITIQUE: If rejected, explain EXACTLY which column or table name is hallucinated or missing."""
 
     try:
         response = client.models.generate_content(model=MODEL_ID, contents=prompt)
         feedback = response.text
         state['reflection_notes'] = feedback
         
-        if "NEEDS_REVISION" in feedback and state['iteration_count'] < 2:
-            print("🔄 Reflection suggested revision...")
+        if "NEEDS_REVISION" in feedback and state['iteration_count'] < 3:
+            print("🔄 Reflection caught an error. Recycling to reasoning...")
             state['iteration_count'] += 1
+            state['error_message'] = f"Reflection Critique: {feedback}"
+            state['last_failed_sql'] = state['generated_sql']
             state['next_agent'] = "reasoning"
         else:
             state['next_agent'] = "executor"
     except Exception as e:
-        print(f"⚠️ Reflection Error: {e}")
         state['next_agent'] = "executor"
         
     return state
@@ -283,43 +242,29 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
     print(f"⚡ EXECUTOR: Running SQL [Attempt {state['iteration_count']+1}]...")
     
     sql = state.get('generated_sql', "").strip()
-    
-    # SECURITY: Check if SQL is actually executable (not just comments or notes)
-    is_pure_comment = sql.startswith("--") and "\n" not in sql.strip()
-    is_note = "Waiting for supervisor" in sql or "specify the table" in sql
-    
-    if not sql or is_pure_comment or is_note:
-        state['error_message'] = "I identified the task, but I'm not sure which table to use. Please specify the table name."
+    if not sql or sql.startswith("--"):
+        state['error_message'] = "No valid SQL produced."
         state['next_agent'] = "formatter"
         return state
 
     try:
         results, columns = database.execute_query(sql, user_id=state.get('user_id'))
         if results is not None:
-            # If we succeeded after a previous error, save the correction to memory
-            if state['iteration_count'] > 0 and state.get('error_message'):
-                 print("💾 Recording successful correction into agent memory...")
-                 agent_memory.add_correction(
-                     state['user_query'],
-                     "PREVIOUS_FAILED_SQL", # We could track the exact failing one if we stored it in state
-                     state['error_message'],
-                     sql
-                 )
-            
             state['query_results'] = results
             state['query_columns'] = columns
             state['error_message'] = ""
             state['next_agent'] = "formatter"
         else:
+            # Error feedback loop
             state['error_message'] = columns
-            if state['iteration_count'] < 2:
-                print(f"❌ Execution failed: {state['error_message']}. Turning back to reasoning...")
+            state['last_failed_sql'] = sql
+            if state['iteration_count'] < 3:
+                print(f"❌ Execution failed. Providing feedback for retry.")
                 state['iteration_count'] += 1
                 state['next_agent'] = "reasoning"
             else:
                 state['next_agent'] = "formatter"
     except Exception as e:
-        print(f"⚠️ Executor Node Error: {e}")
         state['error_message'] = str(e)
         state['next_agent'] = "formatter"
         
@@ -329,33 +274,36 @@ def executor_agent(state: MultiAgentState) -> MultiAgentState:
 # AGENT 5: FORMATTER
 # ============================================================================
 def formatter_agent(state: MultiAgentState) -> MultiAgentState:
-    print("📝 FORMATTER: Creating final answer...")
+    print("📝 FORMATTER: Analytical Storytelling...")
     
     if state['error_message'] and not state['query_results']:
-        state['final_answer'] = f"I'm sorry, I couldn't process your request. Error: {state['error_message']}"
-    elif not state['query_results'] and not state['error_message']:
-        state['final_answer'] = "The query executed successfully, but no data was returned."
-    else:
-        # Give the formatter a MUCH larger window (up to 100 rows)
-        data_sample = state['query_results'][:100]
-        columns = state.get('query_columns', [])
-        data_str = str([dict(zip(columns, row)) for row in data_sample])
+        state['final_answer'] = f"System Error: {state['error_message']}"
+        return state
         
-        prompt = f"""You are a helpful Data Analyst. 
+    data_sample = state['query_results'][:100]
+    columns = state.get('query_columns', [])
+    data_str = str([dict(zip(columns, row)) for row in data_sample])
+    
+    prompt = f"""You are a Pro Data Analyst. 
 The user asked: {state['user_query']}
-Data Retrieved: {data_str}
+Raw Results: {data_str}
 
-Instruction:
-1. Provide a clear, simple, and point-wise answer. Use a bulleted list format.
-2. Cover all relevant information from the data simply.
-3. DO NOT use bold formatting (strict rule: no double asterisks like **text**).
-4. Avoid long paragraphs. Keep the structure clean and minimalist."""
+TASK:
+1. ANALYTICAL STORYTELLING: Don't just list data. Identify patterns, outliers, or significant totals.
+2. ANSWER THE "WHY": If the data shows something interesting, point it out.
+3. STRUCTURE: Use a clean, point-wise breakdown. 
+4. NO BOLD: Strict rule - never use double asterisks (**).
 
-        try:
-            response = client.models.generate_content(model=MODEL_ID, contents=prompt)
-            state['final_answer'] = response.text
-        except Exception as e:
-            state['final_answer'] = f"The query returned {len(state['query_results'])} rows, but I failed to format a nice answer. Error: {str(e)}"
+Example Output Style:
+Overview: Found 4 major revenue clusters...
+- Region X is the leader with 50k...
+- Observation: Data shows a consistent dip in Q2..."""
+
+    try:
+        response = client.models.generate_content(model=MODEL_ID, contents=prompt)
+        state['final_answer'] = response.text
+    except Exception as e:
+        state['final_answer'] = f"Processed {len(state['query_results'])} records. Format failed."
     
     state['next_agent'] = "END"
     return state
@@ -406,6 +354,7 @@ def run_multi_agent_query(query: str, schema: str, user_id: int = None) -> dict:
         "next_agent": "supervisor",
         "is_ambiguous": False,
         "potential_matches": [],
-        "user_id": user_id
+        "user_id": user_id,
+        "last_failed_sql": ""
     }
     return app.invoke(initial_state)
