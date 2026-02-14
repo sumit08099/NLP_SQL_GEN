@@ -20,23 +20,34 @@ function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
-const Typewriter = ({ text, speed = 20, delay = 0, className }) => {
+const Typewriter = ({ text, speed = 10, delay = 0, className }) => {
     const [displayedText, setDisplayedText] = useState("");
+    const [isComplete, setIsComplete] = useState(false);
 
     useEffect(() => {
+        setDisplayedText("");
+        setIsComplete(false);
         let i = 0;
         const timer = setTimeout(() => {
             const interval = setInterval(() => {
                 setDisplayedText(text.slice(0, i));
                 i++;
-                if (i > text.length) clearInterval(interval);
+                if (i > text.length) {
+                    clearInterval(interval);
+                    setIsComplete(true);
+                }
             }, speed);
             return () => clearInterval(interval);
         }, delay);
         return () => clearTimeout(timer);
     }, [text, speed, delay]);
 
-    return <span className={className}>{displayedText}</span>;
+    return (
+        <span className={className}>
+            {displayedText}
+            {!isComplete && <span className="inline-block w-1.5 h-4 bg-brand-500 ml-1 animate-pulse align-middle" />}
+        </span>
+    );
 };
 
 function HomePage() {
@@ -526,7 +537,7 @@ function HomePage() {
                                                                                     <Cpu size={14} /> NLP2SQL Logic Plan
                                                                                 </div>
                                                                                 <div className="text-xs text-slate-400 leading-relaxed italic">
-                                                                                    <Typewriter text={msg.plan || ""} speed={10} delay={500} />
+                                                                                    <Typewriter text={msg.plan || ""} speed={5} delay={100} />
                                                                                 </div>
                                                                             </div>
                                                                             <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
@@ -541,7 +552,7 @@ function HomePage() {
                                                                                     </div>
                                                                                     <div className="terminal-content">
                                                                                         <span className="text-emerald-500/50 mr-2">system@sql-master:~$</span>
-                                                                                        <Typewriter text={msg.sql || ""} speed={15} delay={1000} />
+                                                                                        <Typewriter text={msg.sql || ""} speed={10} delay={300} />
                                                                                         <span className="terminal-cursor" />
                                                                                     </div>
                                                                                 </div>

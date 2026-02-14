@@ -23,7 +23,7 @@ const LandingPage = () => {
             setTerminalText(fullTerminalCode.slice(0, i));
             i++;
             if (i > fullTerminalCode.length) i = 0;
-        }, 100);
+        }, 50);
         return () => clearInterval(interval);
     }, []);
 
@@ -204,13 +204,9 @@ const LandingPage = () => {
 
                                         <div className="relative group">
                                             <div className="absolute inset-0 bg-brand-500/5 blur-2xl rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            <div className="relative bg-black/60 rounded-3xl p-8 font-mono text-sm leading-relaxed border border-white/5 shadow-2xl overflow-hidden group">
-                                                <div className="terminal-content-v2">
-                                                    <span className="text-purple-400">SELECT</span> <span className="text-blue-300">region</span>, <span className="text-amber-400">SUM</span>(amount) <br />
-                                                    <span className="text-purple-400">FROM</span> <span className="text-brand-300">q4_sales_data</span> <br />
-                                                    <span className="text-purple-400">GROUP BY</span> <span className="text-blue-300">region</span> <br />
-                                                    <span className="text-purple-400">HAVING</span> <span className="text-amber-400">SUM</span>(amount) &gt; <span className="text-emerald-400">50000</span> <br />
-                                                    <span className="text-purple-400">ORDER BY</span> <span className="text-emerald-400">2</span> <span className="text-purple-400">DESC</span>;
+                                            <div className="relative bg-black/60 rounded-3xl p-8 font-mono text-sm leading-relaxed border border-white/5 shadow-2xl overflow-hidden group min-h-[200px]">
+                                                <div className="terminal-content-v2 text-brand-300 whitespace-pre">
+                                                    {terminalText}
                                                     <span className="w-2 h-5 bg-brand-500 inline-block align-middle ml-1 animate-pulse" />
                                                 </div>
                                             </div>
