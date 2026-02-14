@@ -43,7 +43,7 @@ const LoginPage = () => {
             const response = await axios.post(`${API_BASE_URL}/login`, formData);
             localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('username', username);
-            navigate('/');
+            navigate('/workspace');
         } catch (err) {
             setError(err.response?.data?.detail || 'Invalid credentials. Please check your username and password.');
         } finally {

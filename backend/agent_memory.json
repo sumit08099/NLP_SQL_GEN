@@ -1,0 +1,12 @@
+{
+    "corrections": [
+        {
+            "timestamp": "2026-02-13T20:33:49.627294",
+            "query": "perform it on  Coronary Artery Disease (text)",
+            "failed_sql": "PREVIOUS_FAILED_SQL",
+            "error": "Supervisor Error: unknown extension ?R at position 12",
+            "corrected_sql": "SELECT *\nFROM \"medical_history\"\nWHERE \"Coronary Artery Disease\" = 'Coronary Artery Disease';"
+        }
+    ],
+    "successful_patterns": []
+}
