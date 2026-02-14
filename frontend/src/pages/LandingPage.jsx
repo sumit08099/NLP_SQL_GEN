@@ -1,205 +1,467 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     BrainCircuit, ArrowRight, Zap, ShieldCheck,
     Database, MessageSquare, Sparkles, BarChart3,
-    ChevronRight, Globe, Cpu, Terminal
+    ChevronRight, Globe, Cpu, Terminal, X,
+    Layers, Search, Activity, Cpu as CpuIcon,
+    Code2, Network, Binary
 } from 'lucide-react';
 import logo from '../assets/logo.jpeg';
 
 const LandingPage = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
+    const [selectedFeature, setSelectedFeature] = useState(null);
+    const [terminalText, setTerminalText] = useState("");
+    const fullTerminalCode = `SELECT region, SUM(amount) \nFROM sales_2024 \nGROUP BY region \nORDER BY 2 DESC;`;
+
+    useEffect(() => {
+        let i = 0;
+        const interval = setInterval(() => {
+            setTerminalText(fullTerminalCode.slice(0, i));
+            i++;
+            if (i > fullTerminalCode.length) i = 0;
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
 
     const features = [
         {
+            id: 1,
             icon: <BrainCircuit className="text-brand-400" size={24} />,
             title: "Hybrid Intelligence",
-            description: "Powered by a custom fine-tuned T5-Small model paired with Gemini 2.0 Flash for maximum reasoning depth."
+            description: "Powered by a custom fine-tuned T5-Small model paired with Gemini 2.0 Flash.",
+            longDescription: "Our architecture utilizes a dual-engine approach. A local fine-tuned T5-Small handles standard SQL syntax with minimal latency, while Gemini 2.0 Flash provides deep reasoning for complex joins and multi-table relationships.",
+            specs: ["T5-Small Local Inference", "Gemini 2.0 Flash Expert", "98.4% Query Accuracy", "Sub-200ms Latency"],
+            color: "brand"
         },
         {
+            id: 2,
             icon: <Database className="text-purple-400" size={24} />,
             title: "Neural Ingestion",
-            description: "Simply upload your CSV or Excel files. Our AI automatically maps the schema to its data sources."
+            description: "Simply upload your CSV or Excel files. Our AI automatically maps the schema.",
+            longDescription: "Bypass complex ETL processes. Upload any flat file, and our Neural Mapper automatically infers data types, detects primary keys, and builds a relational schema in our secure virtualization layer.",
+            specs: ["Auto-Type Detection", "Primary Key Inference", "CSV/XLSX Support", "Secure Isolation"],
+            color: "purple"
         },
         {
+            id: 3,
             icon: <Terminal className="text-emerald-400" size={24} />,
             title: "Self-Correcting SQL",
-            description: "Specialized agents monitor and fix query errors in real-time before they ever reach your terminal."
+            description: "Specialized agents monitor and fix query errors in real-time.",
+            longDescription: "The NLP2SQL loop features a dedicated Reflection Agent. If a query fails execution, the agent analyzes the traceback, consults the database schema, and automatically generates a corrected version within milliseconds.",
+            specs: ["Reflection Loop", "Traceback Analysis", "Auto-Heal Protocol", "Schema Aware"],
+            color: "emerald"
         },
         {
+            id: 4,
             icon: <BarChart3 className="text-amber-400" size={24} />,
             title: "Deep Analysis",
-            description: "Go beyond simple queries. Ask for anomalies, correlations, and trends in plain natural language."
+            description: "Go beyond simple queries. Ask for anomalies, correlations, and trends.",
+            longDescription: "NLP2SQL doesn't just fetch data—it understands intent. Ask questions like 'Why did sales drop in July?' and our engine will perform multi-dimensional analysis to find correlations and hidden insights.",
+            specs: ["Anomaly Detection", "Correlation Mapping", "Trend Forecasting", "Natural Intuition"],
+            color: "amber"
         }
     ];
 
     return (
-        <div className="min-h-screen bg-[#020617] text-white selection:bg-brand-500/30 overflow-hidden">
-            {/* Background Mesh/Glow */}
-            <div className="fixed inset-0 bg-mesh opacity-40 pointer-events-none" />
-            <div className="fixed top-0 left-0 w-full h-[500px] bg-brand-600/10 blur-[150px] -translate-y-1/2 pointer-events-none" />
+        <div className="min-h-screen bg-[#020617] text-white selection:bg-brand-500/30 overflow-hidden font-sans">
+            {/* Background Animations */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-600/10 blur-[120px] rounded-full animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[150px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-mesh opacity-30" />
+            </div>
 
             {/* Navigation */}
-            <nav className="relative z-50 flex items-center justify-between px-10 py-8 max-w-7xl mx-auto">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shadow-lg shadow-brand-500/20">
-                        <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+            <nav className="relative z-50 flex items-center justify-between px-10 py-8 max-w-7xl mx-auto backdrop-blur-md">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-4"
+                >
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-[0_0_20px_rgba(59,130,246,0.3)] bg-slate-900 p-0.5">
+                        <img src={logo} alt="Logo" className="w-full h-full object-cover rounded-full" />
                     </div>
-                    <span className="text-xl font-black tracking-tighter">NLP2SQL</span>
-                </div>
-                <div className="flex items-center gap-6">
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">NLP2SQL</span>
+                        <span className="text-[8px] font-black uppercase tracking-[0.4em] text-brand-500 -mt-1">Intelligence Layer</span>
+                    </div>
+                </motion.div>
+
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-center gap-8"
+                >
                     {token ? (
                         <button
                             onClick={() => navigate('/workspace')}
-                            className="btn-primary"
+                            className="bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all hover:scale-105 active:scale-95 shadow-xl shadow-brand-500/20"
                         >
                             Enter Workspace
                         </button>
                     ) : (
                         <>
-                            <Link to="/login" className="text-sm font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest">Login</Link>
-                            <Link to="/signup" className="btn-primary">Initialize Access</Link>
+                            <Link to="/login" className="text-xs font-black text-slate-500 hover:text-white transition-colors uppercase tracking-[0.2em] hidden sm:block">Access Terminal</Link>
+                            <Link to="/signup" className="h-12 px-8 flex items-center bg-white text-black hover:bg-slate-200 rounded-2xl text-xs font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95">
+                                Initialize
+                            </Link>
                         </>
                     )}
-                </div>
+                </motion.div>
             </nav>
 
-            {/* Hero Section */}
             <main className="relative z-40 max-w-7xl mx-auto px-10 pt-20 pb-32">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                {/* Hero Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center mb-40">
                     <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 glass rounded-full border border-white/10 mb-8">
-                            <Sparkles size={16} className="text-brand-400" />
-                            <span className="text-[10px] font-black text-brand-300 uppercase tracking-[0.3em]">Protocol v4.2 Active</span>
+                        <div className="inline-flex items-center gap-3 px-5 py-2 glass rounded-full border border-white/10 mb-10 group cursor-default">
+                            <Activity size={14} className="text-brand-400 animate-pulse" />
+                            <span className="text-[10px] font-black text-brand-300 uppercase tracking-[0.4em]">Engine Status: Optimal</span>
                         </div>
-                        <h1 className="text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-8 bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/40">
-                            TALK TO YOUR DATA <br />
-                            <span className="text-brand-500">LIKE A PRO.</span>
+
+                        <h1 className="text-7xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-10">
+                            TALK TO <br />
+                            <span className="text-brand-500 relative">
+                                DATA
+                                <motion.div
+                                    className="absolute -bottom-2 left-0 w-full h-3 bg-brand-500/20 -rotate-1"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "100%" }}
+                                    transition={{ delay: 1, duration: 0.8 }}
+                                />
+                            </span>
+                            <br />
+                            LIKE A PRO.
                         </h1>
-                        <p className="text-xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium">
-                            Transform natural language into complex SQL operations instantly.
-                            Built with a multi-agent neural architecture for enterprise-grade precision.
+
+                        <p className="text-xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium border-l-4 border-brand-500/30 pl-8 py-2">
+                            Transform natural language into high-performance SQL.
+                            Built with a multi-agent architectural loop for enterprise-grade precision and self-healing queries.
                         </p>
+
                         <div className="flex flex-col sm:flex-row gap-6">
                             <button
                                 onClick={() => navigate(token ? '/workspace' : '/signup')}
-                                className="h-16 px-10 bg-brand-600 hover:bg-brand-500 rounded-2xl text-lg font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-brand-500/20 group flex items-center justify-center gap-3"
+                                className="h-18 px-12 bg-indigo-600 hover:bg-indigo-500 rounded-[2rem] text-lg font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-3xl shadow-indigo-600/30 group flex items-center justify-center gap-4"
                             >
                                 {token ? "Sync Workspace" : "Begin Deployment"}
-                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
                             </button>
-                            <div className="flex items-center gap-4 px-8 glass-card border-white/5 bg-white/[0.02]">
-                                <ShieldCheck size={24} className="text-emerald-500" />
+
+                            <div className="flex items-center gap-5 px-10 glass-card border-white/5 bg-white/[0.02] rounded-[2rem]">
+                                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
                                 <div className="text-left">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Security Protocol</p>
-                                    <p className="text-xs font-bold">End-to-End Encrypted</p>
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Protection Layer</p>
+                                    <p className="text-xs font-bold text-slate-200">E2E Encrypted</p>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
 
-                    {/* Hero Visual */}
+                    {/* Pro Terminal Visual */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        initial={{ opacity: 0, scale: 0.9, x: 50 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                         className="relative hidden lg:block"
                     >
-                        <div className="relative z-10 glass-card p-1 bg-white/[0.05] border-white/10 shadow-3xl">
-                            <div className="bg-[#000] rounded-[2.2rem] overflow-hidden border border-white/5">
-                                <div className="p-10 space-y-8">
-                                    <div className="flex items-center gap-4 border-b border-white/5 pb-8">
-                                        <div className="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center">
-                                            <MessageSquare className="text-brand-400" />
-                                        </div>
-                                        <p className="font-mono text-sm text-brand-300">"Compare revenue by region for 2024..."</p>
+                        <div className="relative z-10 p-1 rounded-[3.5rem] bg-gradient-to-tr from-brand-500/20 via-white/5 to-purple-500/20 backdrop-blur-2xl border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
+                            <div className="bg-[#0b0f1a] rounded-[3.2rem] overflow-hidden border border-white/5 p-2">
+                                {/* Terminal Header */}
+                                <div className="flex items-center justify-between px-10 py-6 border-b border-white/5 bg-slate-900/40">
+                                    <div className="flex gap-2.5">
+                                        <div className="w-3.5 h-3.5 rounded-full bg-red-500/50 shadow-inner" />
+                                        <div className="w-3.5 h-3.5 rounded-full bg-amber-500/50 shadow-inner" />
+                                        <div className="w-3.5 h-3.5 rounded-full bg-emerald-500/50 shadow-inner" />
                                     </div>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">NLP2SQL Engine Active</span>
+                                    <div className="flex items-center gap-3">
+                                        <CpuIcon size={14} className="text-slate-500" />
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">NLP2SQL SHELL v4.2</span>
+                                    </div>
+                                    <div className="w-16" />
+                                </div>
+
+                                <div className="p-10 space-y-10">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-brand-500/10 flex items-center justify-center border border-brand-500/20 shrink-0">
+                                            <MessageSquare className="text-brand-400" size={20} />
                                         </div>
-                                        <div className="terminal-box bg-slate-950">
-                                            <div className="terminal-content">
-                                                <span className="text-brand-400">SELECT</span> region, SUM(amount) <br />
-                                                <span className="text-brand-400">FROM</span> sales_2024 <br />
-                                                <span className="text-brand-400">GROUP BY</span> region <br />
-                                                <span className="text-brand-400">ORDER BY</span> 2 DESC;
-                                                <span className="terminal-cursor" />
+                                        <div className="space-y-1">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Natural Query</p>
+                                            <p className="font-mono text-sm text-brand-300 italic">"Analyze high-revenue clusters for Q4 sales data..."</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3 opacity-60">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Engine Logic Mapping [OK]</span>
+                                        </div>
+
+                                        <div className="relative group">
+                                            <div className="absolute inset-0 bg-brand-500/5 blur-2xl rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="relative bg-black/60 rounded-3xl p-8 font-mono text-sm leading-relaxed border border-white/5 shadow-2xl overflow-hidden group">
+                                                <div className="terminal-content-v2">
+                                                    <span className="text-purple-400">SELECT</span> <span className="text-blue-300">region</span>, <span className="text-amber-400">SUM</span>(amount) <br />
+                                                    <span className="text-purple-400">FROM</span> <span className="text-brand-300">q4_sales_data</span> <br />
+                                                    <span className="text-purple-400">GROUP BY</span> <span className="text-blue-300">region</span> <br />
+                                                    <span className="text-purple-400">HAVING</span> <span className="text-amber-400">SUM</span>(amount) &gt; <span className="text-emerald-400">50000</span> <br />
+                                                    <span className="text-purple-400">ORDER BY</span> <span className="text-emerald-400">2</span> <span className="text-purple-400">DESC</span>;
+                                                    <span className="w-2 h-5 bg-brand-500 inline-block align-middle ml-1 animate-pulse" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                            <motion.div
-                                                animate={{ width: ["0%", "80%", "80%"] }}
-                                                transition={{ duration: 2, repeat: Infinity }}
-                                                className="h-full bg-brand-500"
-                                            />
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                        <div className="flex gap-10">
+                                            <div className="space-y-1">
+                                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">System Latency</p>
+                                                <p className="text-xs font-bold text-emerald-500">142ms</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Token Logic</p>
+                                                <p className="text-xs font-bold text-brand-400">v-Reflect 2.0</p>
+                                            </div>
                                         </div>
-                                        <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                            <motion.div
-                                                animate={{ width: ["0%", "60%", "60%"] }}
-                                                transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                                                className="h-full bg-purple-500"
-                                            />
+                                        <div className="flex gap-3">
+                                            <div className="w-10 h-1 bg-white/10 rounded-full overflow-hidden">
+                                                <motion.div
+                                                    animate={{ x: ["-100%", "100%"] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                                    className="w-full h-full bg-brand-500"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Decorative floating elements */}
-                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-500/20 blur-[80px] rounded-full animate-pulse" />
-                        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-600/10 blur-[100px] rounded-full animate-pulse" />
+                        {/* Floating Tech Badges */}
+                        <motion.div
+                            animate={{ y: [0, -10, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                            className="absolute -top-6 -left-6 z-20 glass-card p-4 rounded-3xl border-brand-500/30 flex items-center gap-3 bg-[#020617]/80"
+                        >
+                            <Binary size={18} className="text-brand-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Auto-Schema v4</span>
+                        </motion.div>
+
+                        <motion.div
+                            animate={{ y: [0, 10, 0] }}
+                            transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+                            className="absolute -bottom-10 -right-6 z-20 glass-card p-4 rounded-3xl border-emerald-500/30 flex items-center gap-3 bg-[#020617]/80"
+                        >
+                            <ShieldCheck size={18} className="text-emerald-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Validated Execution</span>
+                        </motion.div>
                     </motion.div>
                 </div>
 
-                {/* Features Grid */}
-                <div className="mt-40 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {features.map((feature, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1 }}
-                            className="glass-card p-10 group hover:border-brand-500/30 transition-all hover:-translate-y-2"
-                        >
-                            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-8 group-hover:bg-brand-500/10 group-hover:border-brand-500/20 transition-all">
-                                {feature.icon}
-                            </div>
-                            <h3 className="text-xl font-black mb-4 uppercase tracking-tighter">{feature.title}</h3>
-                            <p className="text-slate-500 text-sm leading-relaxed font-medium">{feature.description}</p>
-                        </motion.div>
-                    ))}
+                {/* Features Section */}
+                <div className="space-y-12">
+                    <div className="flex flex-col items-center text-center space-y-4 mb-20">
+                        <h2 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] mb-2">Core Protocol Capabilities</h2>
+                        <h3 className="text-5xl font-black tracking-tighter">ENGINEERED FOR DATA OBSESSED.</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {features.map((feature, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: idx * 0.1 }}
+                                onClick={() => setSelectedFeature(feature)}
+                                className="glass-card p-10 group hover:border-brand-500/30 transition-all hover:-translate-y-2 cursor-pointer relative overflow-hidden"
+                            >
+                                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <ChevronRight size={16} className="text-brand-500" />
+                                </div>
+
+                                <div className={`w-16 h-16 rounded-2xl bg-${feature.color}-500/5 border border-${feature.color}-500/10 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-${feature.color}-500/10 transition-all shadow-xl`}>
+                                    {feature.icon}
+                                </div>
+                                <h3 className="text-xl font-black mb-4 uppercase tracking-tighter">{feature.title}</h3>
+                                <p className="text-slate-500 text-sm leading-relaxed font-medium mb-6">{feature.description}</p>
+                                <span className="text-[10px] font-black text-brand-400 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                                    Expand Intelligence <ArrowRight size={12} />
+                                </span>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="relative z-50 border-t border-white/5 bg-slate-950/40 backdrop-blur-3xl py-20">
-                <div className="max-w-7xl mx-auto px-10 flex flex-col items-center gap-10">
-                    <div className="flex items-center gap-3 opacity-50">
-                        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 shadow-lg shadow-brand-500/20">
-                            <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+            {/* Feature Modal */}
+            <AnimatePresence>
+                {selectedFeature && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-20">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedFeature(null)}
+                            className="absolute inset-0 bg-[#020617]/90 backdrop-blur-3xl"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="relative w-full max-w-4xl glass-card border-white/10 overflow-hidden shadow-[0_50px_200px_-20px_rgba(59,130,246,0.2)]"
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2">
+                                {/* Modal Left: Visual */}
+                                <div className={`bg-${selectedFeature.color}-600/10 p-12 flex flex-col items-center justify-center border-r border-white/5 relative overflow-hidden`}>
+                                    <div className="absolute top-0 left-0 w-full h-full bg-mesh opacity-20 pointer-events-none" />
+                                    <div className={`w-32 h-32 rounded-[2.5rem] bg-${selectedFeature.color}-500/10 flex items-center justify-center mb-8 border border-${selectedFeature.color}-500/20 shadow-2xl relative z-10`}>
+                                        {React.cloneElement(selectedFeature.icon, { size: 64 })}
+                                    </div>
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                                        className="absolute w-64 h-64 border border-dashed border-white/5 rounded-full"
+                                    />
+                                    <motion.div
+                                        animate={{ rotate: -360 }}
+                                        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                                        className="absolute w-80 h-80 border border-dashed border-white/5 rounded-full"
+                                    />
+                                </div>
+
+                                {/* Modal Right: Content */}
+                                <div className="p-12 md:p-16 space-y-10 relative">
+                                    <button
+                                        onClick={() => setSelectedFeature(null)}
+                                        className="absolute top-8 right-8 p-3 hover:bg-white/5 rounded-full transition-colors text-slate-500 hover:text-white"
+                                    >
+                                        <X size={24} />
+                                    </button>
+
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <div className={`w-2 h-2 rounded-full bg-${selectedFeature.color}-500`} />
+                                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em]">Module Specification</h4>
+                                        </div>
+                                        <h2 className="text-5xl font-black tracking-tighter mb-8 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                                            {selectedFeature.title.toUpperCase()}
+                                        </h2>
+                                        <p className="text-lg text-slate-400 leading-relaxed font-medium">
+                                            {selectedFeature.longDescription}
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-3">
+                                            <Layers size={14} className="text-brand-400" /> TECHNICAL PROTOCOLS
+                                        </h5>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {selectedFeature.specs.map((spec, sidx) => (
+                                                <div key={sidx} className="flex items-center gap-3 px-4 py-3 bg-white/[0.03] border border-white/5 rounded-xl group hover:border-brand-500/30 transition-all">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500 group-hover:scale-125 transition-transform" />
+                                                    <span className="text-[11px] font-bold text-slate-300 tracking-tight">{spec}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-8">
+                                        <button
+                                            onClick={() => navigate(token ? '/workspace' : '/signup')}
+                                            className="w-full py-5 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-xl shadow-brand-500/20 transition-all flex items-center justify-center gap-3"
+                                        >
+                                            Initialize Core <ArrowRight size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Global CTA Section */}
+            <section className="relative z-40 max-w-7xl mx-auto px-10 pb-40">
+                <div className="glass-card p-20 rounded-[4rem] text-center space-y-12 overflow-hidden relative group border-brand-500/10">
+                    <div className="absolute inset-0 bg-brand-600/[0.03] group-hover:bg-brand-600/[0.06] transition-all" />
+                    <div className="absolute -top-1/2 -left-1/4 w-[150%] h-[150%] bg-[radial-gradient(circle_at_center,_rgba(59,130,246,0.1),transparent_70%)] pointer-events-none" />
+
+                    <div className="relative z-10 space-y-6">
+                        <Sparkles size={48} className="text-brand-400 mx-auto mb-10" />
+                        <h2 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85]">
+                            READY TO SCALE <br />
+                            YOUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-indigo-600">INTELLIGENCE?</span>
+                        </h2>
+                        <p className="text-xl text-slate-400 max-w-2xl mx-auto font-medium">
+                            Join the next generation of data-driven teams. Upload your first dataset and experience the power of autonomous SQL generation.
+                        </p>
+                        <div className="pt-10">
+                            <button
+                                onClick={() => navigate(token ? '/workspace' : '/signup')}
+                                className="h-20 px-16 bg-white text-black hover:bg-slate-200 rounded-[2.5rem] text-xl font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-3xl group inline-flex items-center gap-4"
+                            >
+                                Deploy Kernel <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                            </button>
                         </div>
-                        <span className="text-sm font-black tracking-tighter">NLP2SQL</span>
                     </div>
-                    <div className="flex gap-12 text-slate-500 text-xs font-black uppercase tracking-[0.2em]">
-                        <a href="#" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</a>
-                        <a href="#" className="hover:text-brand-400 transition-colors">Registry</a>
-                        <a href="#" className="hover:text-brand-400 transition-colors">Workspace</a>
-                        <a href="#" className="hover:text-brand-400 transition-colors">Support</a>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="relative z-50 border-t border-white/5 bg-slate-950/40 backdrop-blur-3xl py-32">
+                <div className="max-w-7xl mx-auto px-10 grid grid-cols-1 md:grid-cols-4 gap-20">
+                    <div className="col-span-2 space-y-10">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-brand-500/30 shadow-lg shadow-brand-500/10">
+                                <img src={logo} alt="Logo" className="w-full h-full object-cover" />
+                            </div>
+                            <span className="text-3xl font-black tracking-tighter">NLP2SQL</span>
+                        </div>
+                        <p className="text-slate-500 text-lg font-medium leading-relaxed max-w-sm">
+                            Next-generation autonomous data intelligence platform. Built for precision. Engineered for scale.
+                        </p>
+                        <div className="flex gap-10">
+                            <Globe className="text-slate-600 hover:text-brand-400 cursor-pointer transition-colors" size={24} />
+                            <Activity className="text-slate-600 hover:text-emerald-400 cursor-pointer transition-colors" size={24} />
+                            <ShieldCheck className="text-slate-600 hover:text-purple-400 cursor-pointer transition-colors" size={24} />
+                        </div>
                     </div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-700">
-                        © 2026 - Engineered for Intelligence - Protocol 4.2.0
-                    </p>
+
+                    <div className="space-y-10">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Resource Registry</h4>
+                        <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
+                            <a href="#" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</a>
+                            <a href="#" className="hover:text-brand-400 transition-colors">Neural Assets</a>
+                            <a href="#" className="hover:text-brand-400 transition-colors">Protocol Specs</a>
+                            <a href="#" className="hover:text-brand-400 transition-colors">API Kernel</a>
+                        </div>
+                    </div>
+
+                    <div className="space-y-10">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Support Protocol</h4>
+                        <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
+                            <a href="#" className="hover:text-brand-400 transition-colors">Terminal Help</a>
+                            <a href="#" className="hover:text-brand-400 transition-colors">System Status</a>
+                            <a href="#" className="hover:text-brand-400 transition-colors">Security Audit</a>
+                        </div>
+                    </div>
+                </div>
+                <div className="max-w-7xl mx-auto px-10 mt-32 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.5em] text-slate-700">
+                    <p>© 2026 - Engineered for Intelligence - Protocol 4.2.0</p>
+                    <div className="flex gap-10">
+                        <span>P-4.2-0_ACTIVE</span>
+                        <span>NODE_SYNC_READY</span>
+                    </div>
                 </div>
             </footer>
         </div>
