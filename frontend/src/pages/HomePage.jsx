@@ -20,6 +20,25 @@ function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
+const Typewriter = ({ text, speed = 20, delay = 0, className }) => {
+    const [displayedText, setDisplayedText] = useState("");
+
+    useEffect(() => {
+        let i = 0;
+        const timer = setTimeout(() => {
+            const interval = setInterval(() => {
+                setDisplayedText(text.slice(0, i));
+                i++;
+                if (i > text.length) clearInterval(interval);
+            }, speed);
+            return () => clearInterval(interval);
+        }, delay);
+        return () => clearTimeout(timer);
+    }, [text, speed, delay]);
+
+    return <span className={className}>{displayedText}</span>;
+};
+
 function HomePage() {
     const [messages, setMessages] = useState([
         {
@@ -422,7 +441,7 @@ function HomePage() {
                                                 >
                                                     <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-brand-500 to-indigo-600" />
                                                     <div className="text-base md:text-lg text-slate-200 leading-relaxed font-medium whitespace-pre-wrap">
-                                                        {msg.content}
+                                                        <Typewriter text={msg.content || ""} speed={5} />
                                                     </div>
 
                                                     {/* AMBIGUITY UI */}
@@ -506,7 +525,9 @@ function HomePage() {
                                                                                 <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-brand-400 uppercase tracking-widest">
                                                                                     <Cpu size={14} /> NLP2SQL Logic Plan
                                                                                 </div>
-                                                                                <p className="text-xs text-slate-400 leading-relaxed italic">{msg.plan}</p>
+                                                                                <div className="text-xs text-slate-400 leading-relaxed italic">
+                                                                                    <Typewriter text={msg.plan || ""} speed={10} delay={500} />
+                                                                                </div>
                                                                             </div>
                                                                             <div className="p-6 glass-card border-emerald-500/20 bg-emerald-500/[0.03]">
                                                                                 <div className="flex items-center gap-3 mb-4 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
@@ -520,7 +541,7 @@ function HomePage() {
                                                                                     </div>
                                                                                     <div className="terminal-content">
                                                                                         <span className="text-emerald-500/50 mr-2">system@sql-master:~$</span>
-                                                                                        {msg.sql}
+                                                                                        <Typewriter text={msg.sql || ""} speed={15} delay={1000} />
                                                                                         <span className="terminal-cursor" />
                                                                                     </div>
                                                                                 </div>
