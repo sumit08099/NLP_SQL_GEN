@@ -633,7 +633,10 @@ function HomePage() {
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                 placeholder="Command the data layer... (e.g. 'Show revenue by city')"
-                                className="bg-transparent border-none focus:ring-0 text-slate-100 placeholder:text-slate-600 text-lg py-5 flex-1 font-medium tracking-tight"
+                                className="bg-transparent border-none outline-none focus:ring-0 text-slate-100 placeholder:text-slate-600 text-lg py-5 flex-1 font-medium tracking-tight"
+                                spellCheck={false}
+                                autoComplete="off"
+                                autoCorrect="off"
                             />
                             <button
                                 onClick={() => handleSend()}
