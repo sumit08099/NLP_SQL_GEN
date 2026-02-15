@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     BrainCircuit, ArrowRight, Zap, ShieldCheck,
     Database, MessageSquare, Sparkles, BarChart3,
-    ChevronRight, Globe, Cpu, Terminal, X,
+    ChevronRight, Github, Cpu, Terminal, X,
     Layers, Search, Activity, Cpu as CpuIcon,
     Code2, Network, Binary, Brain as BrainIcon
 } from 'lucide-react';
@@ -424,7 +424,7 @@ const LandingPage = () => {
                             Next-generation autonomous data intelligence platform. Built for precision. Engineered for scale.
                         </p>
                         <div className="flex gap-10">
-                            <Globe onClick={() => window.open('https://github.com/sumit08099/NLP_SQL_GEN', '_blank')} className="text-slate-600 hover:text-brand-400 cursor-pointer transition-colors" size={24} />
+                            <Github onClick={() => window.open('https://github.com/sumit08099/NLP_SQL_GEN', '_blank')} className="text-slate-600 hover:text-brand-400 cursor-pointer transition-colors" size={24} />
                             <Activity onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-600 hover:text-emerald-400 cursor-pointer transition-colors" size={24} />
                             <ShieldCheck onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-600 hover:text-purple-400 cursor-pointer transition-colors" size={24} />
                         </div>
