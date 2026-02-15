@@ -53,7 +53,7 @@ const LandingPage = () => {
             title: "Self-Correcting SQL",
             description: "Specialized agents monitor and fix query errors in real-time.",
             longDescription: "The NLP2SQL loop features a dedicated Reflection Agent. If a query fails execution, the agent analyzes the traceback, consults the database schema, and automatically generates a corrected version within milliseconds.",
-            specs: ["Reflection Loop", "Traceback Analysis", "Auto-Heal Protocol", "Schema Aware"],
+            specs: ["Reflection Loop", "Traceback Analysis", "Auto-Heal System", "Schema Aware"],
             color: "emerald"
         },
         {
