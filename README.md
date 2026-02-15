@@ -36,7 +36,7 @@ The data analyst. It doesn't just list rows—it performs **Analytical Storytell
 
 *   **Hybrid Intelligence**: Seamlessly blends a local fine-tuned ML model with Gemini 2.0 Flash for maximum speed and accuracy.
 *   **Semantic Knowledge Mapping**: Simply upload a CSV or Excel file, and the AI maps the entire schema into its neural memory instantly.
-*   **Security Protocol**: Enterprise-grade JWT authentication and bcrypt password encryption ensure your data remains isolated and secure.
+*   **Security Layer**: Enterprise-grade JWT authentication and bcrypt password encryption ensure your data remains isolated and secure.
 *   **Premium Workspace**: A state-of-the-art glassmorphic UI featuring real-time AI thought visualization, technical detail expansion, and automated system clock synchronization.
 
 ---
@@ -51,7 +51,7 @@ The data analyst. It doesn't just list rows—it performs **Analytical Storytell
 | **Local Model** | Fine-tuned T5-Small |
 | **Frontend** | React 19 + Framer Motion |
 | **Styling** | Vanilla CSS + Tailwind v4 (Beta) |
-| **Database** | PostgreSQL (Supabase) |
+| **Database** | PostgreSQL |
 
 ---
 
@@ -87,5 +87,4 @@ npm run dev
 ## 📄 License
 Project developed for next-generation AI data analysis demo.
 
-**Lead Engineer:** Sumit, Karan  
-**Version:** 4.2.0 (Intelligence Layer)
+**Lead Engineers:** Sumit, Karan  

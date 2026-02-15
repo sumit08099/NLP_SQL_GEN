@@ -19,7 +19,7 @@ The command center for data analysis:
 *   **AI Chain Detail**: Expandable technical insights showing the **Logic Path**, **Reflection Audit**, and **Execution Plan** for every query.
 *   **Analytical Storytelling**: Human-readable data summaries that identify trends and outliers automatically.
 
-### 🛡️ Authentication Protocol
+### 🛡️ Authentication Layer
 *   Polished **Operative Registry** (Signup) and **Secure Initializer** (Login) pages.
 *   Full JWT session management with auto-redirection and unauthorized state handling.
 
@@ -64,4 +64,3 @@ npm run preview
 ---
 
 **UI/UX Architect:** Sumit Karan  
-**Interface Version:** 4.2.1-UI
