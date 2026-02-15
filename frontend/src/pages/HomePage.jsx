@@ -686,9 +686,11 @@ function HomePage() {
                                 {isProcessing ? <RefreshCw className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                             </button>
                         </div>
-                        <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
-                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Neural Sync Active
-                        </span>
+                        <div className="flex justify-center mt-6">
+                            <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
+                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Neural Sync Active
+                            </span>
+                        </div>
                     </div>
                 </footer>
             </main>
