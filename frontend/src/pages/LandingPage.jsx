@@ -14,6 +14,7 @@ const LandingPage = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
     const [selectedFeature, setSelectedFeature] = useState(null);
+    const [showHelp, setShowHelp] = useState(false);
     const [terminalText, setTerminalText] = useState("");
     const fullTerminalCode = `SELECT region, SUM(amount) \nFROM sales_2024 \nGROUP BY region \nORDER BY 2 DESC;`;
 
@@ -441,7 +442,7 @@ const LandingPage = () => {
                     <div className="space-y-10">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Support Channel</h4>
                         <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
-                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-left hover:text-brand-400 transition-colors uppercase">Terminal Help</button>
+                            <button onClick={() => setShowHelp(true)} className="text-left hover:text-brand-400 transition-colors uppercase">Terminal Help</button>
                             <div className="flex items-center gap-2 text-emerald-500/60">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                 <span className="text-xs">System Status: Operational</span>
@@ -461,6 +462,81 @@ const LandingPage = () => {
                     </div>
                 </div>
             </footer>
+            {/* Help Modal */}
+            <AnimatePresence>
+                {showHelp && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-20"
+                    >
+                        <div onClick={() => setShowHelp(false)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-2xl" />
+                        <motion.div
+                            initial={{ scale: 0.9, y: 30 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 30 }}
+                            className="w-full max-w-4xl glass-card rounded-[3rem] p-10 md:p-16 relative overflow-hidden ring-1 ring-white/10"
+                        >
+                            <button
+                                onClick={() => setShowHelp(false)}
+                                className="absolute top-10 right-10 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors"
+                            >
+                                <X size={20} className="text-slate-400" />
+                            </button>
+
+                            <div className="flex items-center gap-4 mb-12">
+                                <div className="p-4 bg-brand-500/20 rounded-2xl shadow-xl">
+                                    <BrainIcon size={28} className="text-brand-400" />
+                                </div>
+                                <div>
+                                    <h2 className="text-3xl font-black tracking-tighter uppercase">Operations Manual</h2>
+                                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.4em] mt-1">Intelligence Protocol v4.0</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                <div className="space-y-6">
+                                    <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                                        <Database className="text-purple-400" size={20} />
+                                    </div>
+                                    <h3 className="text-lg font-black uppercase tracking-tight">01. Data Ingestion</h3>
+                                    <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                                        Upload dynamic datasets (CSV/Excel). The engine will automatically map schemas and initialize the Neural Synchronizer.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                        <MessageSquare className="text-emerald-400" size={20} />
+                                    </div>
+                                    <h3 className="text-lg font-black uppercase tracking-tight">02. NLP Querying</h3>
+                                    <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                                        Speak to your data. Ask for complex joins, aggregations, or filters using natural language. No SQL knowledge required.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                                        <Zap className="text-amber-400" size={20} />
+                                    </div>
+                                    <h3 className="text-lg font-black uppercase tracking-tight">03. Storytelling</h3>
+                                    <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                                        The Logic Layer provides analytical storytelling, identifying trends and outliers beyond the raw SQL results.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-16 p-8 rounded-3xl bg-brand-500/5 border border-brand-500/20">
+                                <h4 className="text-[10px] font-black text-brand-400 uppercase tracking-widest mb-4">Pro Security Tip</h4>
+                                <p className="text-sm text-slate-400 leading-relaxed italic">
+                                    Every query processed through our engine is sandboxed. Your raw credentials and sensitive metadata are never exposed to the public intelligence layer.
+                                </p>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
