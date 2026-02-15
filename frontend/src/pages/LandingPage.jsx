@@ -260,7 +260,7 @@ const LandingPage = () => {
                 </div>
 
                 {/* Features Section */}
-                <div className="space-y-12">
+                <div id="features-section" className="space-y-12">
                     <div className="flex flex-col items-center text-center space-y-4 mb-20">
                         <h2 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] mb-2">Core Platform Capabilities</h2>
                         <h3 className="text-5xl font-black tracking-tighter">ENGINEERED FOR DATA OBSESSED.</h3>
@@ -423,27 +423,33 @@ const LandingPage = () => {
                             Next-generation autonomous data intelligence platform. Built for precision. Engineered for scale.
                         </p>
                         <div className="flex gap-10">
-                            <Globe className="text-slate-600 hover:text-brand-400 cursor-pointer transition-colors" size={24} />
-                            <Activity className="text-slate-600 hover:text-emerald-400 cursor-pointer transition-colors" size={24} />
-                            <ShieldCheck className="text-slate-600 hover:text-purple-400 cursor-pointer transition-colors" size={24} />
+                            <Globe onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-slate-600 hover:text-brand-400 cursor-pointer transition-colors" size={24} />
+                            <Activity onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-600 hover:text-emerald-400 cursor-pointer transition-colors" size={24} />
+                            <ShieldCheck onClick={() => document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-600 hover:text-purple-400 cursor-pointer transition-colors" size={24} />
                         </div>
                     </div>
 
                     <div className="space-y-10">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Resource Registry</h4>
                         <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
-                            <Link to="/workspace" className="hover:text-brand-400 transition-colors">NLP2SQL Engine</Link>
-                            <Link to="/signup" className="hover:text-brand-400 transition-colors">Registry</Link>
-                            <Link to="/workspace" className="hover:text-brand-400 transition-colors">Workspace</Link>
+                            <Link to="/workspace" onClick={() => window.scrollTo(0, 0)} className="hover:text-brand-400 transition-colors">NLP2SQL Engine</Link>
+                            <Link to="/signup" onClick={() => window.scrollTo(0, 0)} className="hover:text-brand-400 transition-colors">Registry</Link>
+                            <Link to="/workspace" onClick={() => window.scrollTo(0, 0)} className="hover:text-brand-400 transition-colors">Workspace</Link>
                         </div>
                     </div>
 
                     <div className="space-y-10">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Support Channel</h4>
                         <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
-                            <a href="#" className="hover:text-brand-400 transition-colors">Terminal Help</a>
-                            <a href="#" className="hover:text-brand-400 transition-colors">System Status</a>
-                            <a href="#" className="hover:text-brand-400 transition-colors">Security Audit</a>
+                            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-left hover:text-brand-400 transition-colors uppercase">Terminal Help</button>
+                            <div className="flex items-center gap-2 text-emerald-500/60">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-xs">System Status: Operational</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-brand-400/60">
+                                <ShieldCheck size={12} />
+                                <span className="text-xs">Security Audit: Verified</span>
+                            </div>
                         </div>
                     </div>
                 </div>
