@@ -87,5 +87,5 @@ npm run dev
 ## 📄 License
 Project developed for next-generation AI data analysis demo.
 
-**Lead Engineer:** Sumit Karan  
+**Lead Engineer:** Sumit, Karan  
 **Version:** 4.2.0 (Intelligence Layer)
