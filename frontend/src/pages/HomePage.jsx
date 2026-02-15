@@ -228,7 +228,7 @@ function HomePage() {
                         <h1 className="text-xl font-black tracking-tighter text-white">NLP2SQL</h1>
                         <div className="flex items-center gap-2 mt-0.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-                            <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">NLP2SQL Engine v4</span>
+                            <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em]">Intelligence Layer</span>
                         </div>
                     </div>
                 </div>
@@ -686,14 +686,9 @@ function HomePage() {
                                 {isProcessing ? <RefreshCw className="animate-spin" size={20} /> : <ArrowRight size={20} />}
                             </button>
                         </div>
-                        <div className="flex justify-center mt-6 gap-10">
-                            <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Neural Sync Active
-                            </span>
-                            <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
-                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Protocol v4.2.0
-                            </span>
-                        </div>
+                        <span className="flex items-center gap-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Neural Sync Active
+                        </span>
                     </div>
                 </footer>
             </main>

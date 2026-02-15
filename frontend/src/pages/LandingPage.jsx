@@ -180,7 +180,7 @@ const LandingPage = () => {
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <CpuIcon size={14} className="text-slate-500" />
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">NLP2SQL SHELL v4.2</span>
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">NLP2SQL SHELL</span>
                                     </div>
                                     <div className="w-16" />
                                 </div>
@@ -220,8 +220,8 @@ const LandingPage = () => {
                                                 <p className="text-xs font-bold text-emerald-500">142ms</p>
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Token Logic</p>
-                                                <p className="text-xs font-bold text-brand-400">v-Reflect 2.0</p>
+                                                <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Logic Engine</p>
+                                                <p className="text-xs font-bold text-brand-400">P-Reflect 2.0</p>
                                             </div>
                                         </div>
                                         <div className="flex gap-3">
@@ -245,7 +245,7 @@ const LandingPage = () => {
                             className="absolute -top-6 -left-6 z-20 glass-card p-4 rounded-3xl border-brand-500/30 flex items-center gap-3 bg-[#020617]/80"
                         >
                             <Binary size={18} className="text-brand-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Auto-Schema v4</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Auto-Schema Mapping</span>
                         </motion.div>
 
                         <motion.div
@@ -262,7 +262,7 @@ const LandingPage = () => {
                 {/* Features Section */}
                 <div className="space-y-12">
                     <div className="flex flex-col items-center text-center space-y-4 mb-20">
-                        <h2 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] mb-2">Core Protocol Capabilities</h2>
+                        <h2 className="text-[10px] font-black text-brand-500 uppercase tracking-[0.5em] mb-2">Core Platform Capabilities</h2>
                         <h3 className="text-5xl font-black tracking-tighter">ENGINEERED FOR DATA OBSESSED.</h3>
                     </div>
 
@@ -355,7 +355,7 @@ const LandingPage = () => {
 
                                     <div className="space-y-6">
                                         <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-3">
-                                            <Layers size={14} className="text-brand-400" /> TECHNICAL PROTOCOLS
+                                            <Layers size={14} className="text-brand-400" /> TECHNICAL ARCHITECTURE
                                         </h5>
                                         <div className="grid grid-cols-2 gap-4">
                                             {selectedFeature.specs.map((spec, sidx) => (
@@ -439,7 +439,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="space-y-10">
-                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Support Protocol</h4>
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Support Channel</h4>
                         <div className="flex flex-col gap-6 text-slate-500 text-sm font-bold uppercase tracking-widest">
                             <a href="#" className="hover:text-brand-400 transition-colors">Terminal Help</a>
                             <a href="#" className="hover:text-brand-400 transition-colors">System Status</a>
@@ -448,9 +448,9 @@ const LandingPage = () => {
                     </div>
                 </div>
                 <div className="max-w-7xl mx-auto px-10 mt-32 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.5em] text-slate-700">
-                    <p>© 2026 - Engineered for Intelligence - Protocol 4.2.0</p>
+                    <p>© 2026 - Engineered for Intelligence</p>
                     <div className="flex gap-10">
-                        <span>P-4.2-0_ACTIVE</span>
+                        <span>SYSTEM_STABLE</span>
                         <span>NODE_SYNC_READY</span>
                     </div>
                 </div>
