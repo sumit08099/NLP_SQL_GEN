@@ -172,7 +172,7 @@ const SignupPage = () => {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Access Protocol</label>
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Access Pass-Key</label>
                             <div className="group relative">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
                                     <Lock size={20} />
@@ -190,7 +190,7 @@ const SignupPage = () => {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Confirm Protocol</label>
+                            <label className="text-xs font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Confirm Identity</label>
                             <div className="group relative">
                                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors">
                                     <Shield size={20} />
@@ -237,7 +237,7 @@ const SignupPage = () => {
                 <div className="mt-10 flex flex-col items-center justify-center gap-2 text-slate-600 opacity-60">
                     <div className="flex items-center gap-2">
                         <Shield size={14} />
-                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Protocol Active</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.3em]">End-to-End Encryption Secure</span>
                     </div>
                     <p className="text-[10px] font-medium text-brand-400/80 italic">Pro-Tip: Use symbols like @, #, $ for maximum security.</p>
                 </div>

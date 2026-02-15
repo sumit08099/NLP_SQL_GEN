@@ -177,7 +177,7 @@ const LoginPage = () => {
                 {/* Footer Info */}
                 <div className="mt-12 flex flex-col items-center gap-4 opacity-40">
                     <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500">
-                        Protocol v4.0.2 // Encrypted Node
+                        Secure Data Layer // Encrypted Node
                     </p>
                 </div>
             </motion.div>
