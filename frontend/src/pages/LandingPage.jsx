@@ -6,7 +6,7 @@ import {
     Database, MessageSquare, Sparkles, BarChart3,
     ChevronRight, Globe, Cpu, Terminal, X,
     Layers, Search, Activity, Cpu as CpuIcon,
-    Code2, Network, Binary
+    Code2, Network, Binary, Brain as BrainIcon
 } from 'lucide-react';
 import logo from '../assets/logo.jpeg';
 
@@ -491,7 +491,7 @@ const LandingPage = () => {
                                 </div>
                                 <div>
                                     <h2 className="text-3xl font-black tracking-tighter uppercase">Operations Manual</h2>
-                                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.4em] mt-1">Intelligence Protocol v4.0</p>
+                                    <p className="text-[10px] text-brand-500 font-black uppercase tracking-[0.4em] mt-1">Live Intelligence System</p>
                                 </div>
                             </div>
 
