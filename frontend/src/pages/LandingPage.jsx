@@ -486,8 +486,8 @@ const LandingPage = () => {
                             </button>
 
                             <div className="flex items-center gap-4 mb-12">
-                                <div className="p-4 bg-brand-500/20 rounded-2xl shadow-xl">
-                                    <BrainIcon size={28} className="text-brand-400" />
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-brand-500/30 shadow-xl bg-slate-900 p-0.5">
+                                    <img src={logo} alt="NLP2SQL" className="w-full h-full object-cover rounded-[0.9rem]" />
                                 </div>
                                 <div>
                                     <h2 className="text-3xl font-black tracking-tighter uppercase">Operations Manual</h2>
