@@ -30,16 +30,26 @@ MODEL_ID = "gemini-2.0-flash"
 LOCAL_MODEL_READY = False
 try:
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(current_dir, "fine_tuned_sql_model")
+    # Check for both "fine_tuned" and "fine_tune" spellings
+    path_options = [
+        os.path.join(current_dir, "fine_tuned_sql_model"),
+        os.path.join(current_dir, "fine_tune_sql_model")
+    ]
     
-    if os.path.exists(model_path) and os.path.isdir(model_path):
-        print("🤖 Loading Local ML Model (T5-Small)...")
+    model_path = None
+    for path in path_options:
+        if os.path.exists(path) and os.path.isdir(path):
+            model_path = path
+            break
+            
+    if model_path:
+        print(f"🤖 Loading Local ML Model from: {os.path.basename(model_path)}...")
         local_tokenizer = T5Tokenizer.from_pretrained(model_path)
         local_model = T5ForConditionalGeneration.from_pretrained(model_path)
         LOCAL_MODEL_READY = True
         print("✅ Local Model Loaded and Ready.")
     else:
-        print("ℹ️ Local ML model folder not found. System will use Gemini 2.0 Flash API.")
+        print("ℹ️ Local ML model folder not found (Checked: fine_tuned_sql_model / fine_tune_sql_model). Using Gemini API.")
 except Exception as e:
     print(f"⚠️ Local model initialization skipped: {e}")
 
