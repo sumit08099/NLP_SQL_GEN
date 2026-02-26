@@ -29,16 +29,19 @@ MODEL_ID = "gemini-2.0-flash"
 # ============================================================================
 LOCAL_MODEL_READY = False
 try:
-    print("🤖 Loading Local ML Model (T5-Small)...")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(current_dir, "fine_tuned_sql_model")
     
-    local_tokenizer = T5Tokenizer.from_pretrained(model_path)
-    local_model = T5ForConditionalGeneration.from_pretrained(model_path)
-    LOCAL_MODEL_READY = True
-    print("✅ Local Model Loaded and Ready.")
+    if os.path.exists(model_path) and os.path.isdir(model_path):
+        print("🤖 Loading Local ML Model (T5-Small)...")
+        local_tokenizer = T5Tokenizer.from_pretrained(model_path)
+        local_model = T5ForConditionalGeneration.from_pretrained(model_path)
+        LOCAL_MODEL_READY = True
+        print("✅ Local Model Loaded and Ready.")
+    else:
+        print("ℹ️ Local ML model folder not found. System will use Gemini 2.0 Flash API.")
 except Exception as e:
-    print(f"⚠️ Local model not loaded: {e}")
+    print(f"⚠️ Local model initialization skipped: {e}")
 
 # ============================================================================
 # STATE DEFINITION
