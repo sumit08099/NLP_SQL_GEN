@@ -156,9 +156,23 @@ Return JSON ONLY:
 # AGENT 2: REASONING (Hybrid: Local + Gemini)
 # ============================================================================
 def reasoning_agent(state: MultiAgentState) -> MultiAgentState:
-    print("🧠 REASONING: Building query plan (Two-Step)...")
+    print("🧠 REASONING: Building query plan (Hybrid: Local ML + Gemini Expert)...")
     
-    # Error-Aware Retry Logic
+    # --- PHASE 1: Invoke Local ML Model (The Specialist) ---
+    local_draft_sql = ""
+    if LOCAL_MODEL_READY:
+        try:
+            print("🤖 LOCAL ML: Generating initial SQL draft...")
+            input_text = f"translate English to SQL: {state['user_query']} \n Context: {state['db_schema']}"
+            inputs = local_tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
+            with torch.no_grad():
+                outputs = local_model.generate(**inputs, max_length=512)
+            local_draft_sql = local_tokenizer.decode(outputs[0], skip_special_tokens=True)
+            print(f"🤖 LOCAL ML DRAFT: {local_draft_sql[:100]}...")
+        except Exception as e:
+            print(f"⚠️ Local Model Inference Error: {e}")
+    
+    # --- PHASE 2: Gemini Refinement (The Expert Architect) ---
     error_feedback = ""
     if state['error_message']:
         error_feedback = f"""
@@ -167,8 +181,11 @@ SQL: {state.get('last_failed_sql', 'Unknown')}
 ERROR: {state['error_message']}
 GUIDANCE: Analyze why the previous SQL failed. Was it a missing column? A syntax error? Correct it now."""
 
+    local_model_context = f"\nLOCAL MODEL DRAFT: {local_draft_sql}" if local_draft_sql else ""
+
     prompt = f"""You are a Senior SQL Architect. 
-TASK: Convert the user's request into a valid PostgreSQL query.
+TASK: finalize the SQL query for this user request. 
+{local_model_context}
 
 USER REQUEST: {state['user_query']}
 TARGET TABLES: {state.get('target_tables', [])}
@@ -176,9 +193,11 @@ SCHEMA CONTEXT:
 {state['db_schema']}
 {error_feedback}
 
-TWO-STEP INSTRUCTIONS:
-1. LOGIC PATH: Explain which tables you will join and which columns you will filter.
-2. SQL GENERATION: Write the final query. Use double quotes for all identifiers (e.g. "Table_Name"."Column").
+INSTRUCTIONS:
+1. If the LOCAL MODEL DRAFT is provided, validate it against the SCHEMA CONTEXT.
+2. If the draft is correct, finalize it. If it has errors (missing quotes, hallucinated columns), FIX IT.
+3. If no draft exists, generate the PostgreSQL query from scratch.
+4. Always use double quotes for identifiers (e.g. "Table"."Column").
 
 Format:
 LOGIC_PATH: [Step-by-step logic]
