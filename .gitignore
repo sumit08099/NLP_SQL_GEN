@@ -1,15 +1,38 @@
+# Environments
 .env
+.env.*
+.env.local
+.env.production
+.env.staging
+
+# Secrets & Keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+secrets/
+credentials/
+.aws/
+service-account*.json
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+
+# Python
 __pycache__/
 *.pyc
 venv/
-.DS_Store
-backend/fine_tuned_sql_model/
-backend/results/
+.venv/
 *.txt
 *.log
+
+# Models & Data
+backend/fine_tuned_sql_model/
+backend/results/
+
+# JS / Frontend
 node_modules/
 dist/
-.env
 .DS_Store
-__pycache__/
-venv/
