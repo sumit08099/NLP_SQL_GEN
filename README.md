@@ -4,6 +4,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-v0.109.0-059669?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Gemini](https://img.shields.io/badge/Google_GenAI-Gemini_2.0_Flash-orange?logo=google&logoColor=white)](https://aistudio.google.com/)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Models-yellow)](https://huggingface.co/Karan6124/t5-nl2sql-gen)
 
 **NLP2SQL** is a professional-grade autonomous data intelligence platform that transforms Natural Language into precise PostgreSQL queries. Engineered for scale and precision, it utilizes a sophisticated **Multi-Agent Orchestration** model to navigate complex schemas, identify analytical trends, and self-heal from errors.
 
@@ -48,7 +49,7 @@ The data analyst. It doesn't just list rows—it performs **Analytical Storytell
 | **Core Engine** | FastAPI (Python 3.11) |
 | **Agentic Framework** | LangGraph / LangChain |
 | **Primary LLM** | Google Gemini 2.0 Flash |
-| **Local Model** | Fine-tuned T5-Small |
+| **Local Model** | [Fine-tuned T5-Small](https://huggingface.co/Karan6124/t5-nl2sql-gen) |
 | **Frontend** | React 19 + Framer Motion |
 | **Styling** | Vanilla CSS + Tailwind v4 (Beta) |
 | **Database** | PostgreSQL |
